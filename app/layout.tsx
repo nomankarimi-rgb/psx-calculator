@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "NafaX Terminal | Pakistan Stock Exchange Live Intelligence",
-  description: "TradingView-Grade PSX Market Watch, Screener, Technical Analysis & Smart Cost-Averaging Desk",
+  description: "TradingView-Grade PSX Platform, Paper Trading Simulator & Smart Cost-Averaging Desk",
 };
 
 export default function RootLayout({
@@ -16,20 +16,19 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script src="https://cdn.tailwindcss.com"></script>
         <style>{`
-          /* Official TradingView typography stack */
           body {
-            font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 0;
-            width: 75%;
+            width: 100%;
           }
           .font-num {
-            font-family: 'JetBrains Mono', -apple-system, monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-feature-settings: 'tnum' on, 'lnum' on;
           }
         `}</style>
