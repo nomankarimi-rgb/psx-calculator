@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "NafaX | Pakistan Stock Exchange & Market Intelligence Terminal",
-  description: "TradingView-Grade PSX Trading Platform, Interactive Screener & Smart Cost-Averaging Desk",
+  title: "NafaX Terminal | Pakistan Stock Exchange Live Intelligence",
+  description: "TradingView-Grade PSX Market Watch, Screener, Technical Analysis & Smart Cost-Averaging Desk",
 };
 
 export default function RootLayout({
@@ -16,23 +16,25 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script src="https://cdn.tailwindcss.com"></script>
         <style>{`
+          /* Official TradingView typography stack */
           body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
-            background-color: #ffffff;
-            color: #131722;
+            font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
           }
           .font-num {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'JetBrains Mono', -apple-system, monospace;
             font-feature-settings: 'tnum' on, 'lnum' on;
           }
         `}</style>
       </head>
-      <body className="bg-white text-[#131722] antialiased selection:bg-[#2962ff] selection:text-white">
+      <body className="w-full min-h-screen antialiased">
         {children}
       </body>
     </html>
