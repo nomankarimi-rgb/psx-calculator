@@ -5,131 +5,158 @@ import React, { useState, useMemo, useRef } from 'react';
 // Comprehensive PSX 50+ Stock Directory
 const PSX_UNIVERSE = [
   // Oil & Gas Exploration & Refineries
-  { symbol: 'OGDC', name: 'Oil & Gas Dev Co', sector: 'Oil & Gas', price: 174.50, change: +3.85, base: 170.0, volume: '18.4M', pe: 4.8, mktCap: '750B', yield: '9.2%', shariah: true },
-  { symbol: 'PPL', name: 'Pakistan Petroleum Ltd', sector: 'Oil & Gas', price: 126.20, change: +2.15, base: 123.0, volume: '11.2M', pe: 5.2, mktCap: '343B', yield: '8.4%', shariah: true },
-  { symbol: 'MARI', name: 'Mari Energies Ltd', sector: 'Oil & Gas', price: 2840.00, change: +4.10, base: 2780.0, volume: '1.2M', pe: 7.9, mktCap: '422B', yield: '6.1%', shariah: true },
-  { symbol: 'POL', name: 'Pakistan Oilfields Ltd', sector: 'Oil & Gas', price: 485.00, change: +1.40, base: 478.0, volume: '2.4M', pe: 6.2, mktCap: '138B', yield: '14.5%', shariah: true },
-  { symbol: 'PSO', name: 'Pakistan State Oil', sector: 'Oil Marketing', price: 218.30, change: -1.75, base: 221.0, volume: '4.8M', pe: 6.1, mktCap: '102B', yield: '4.8%', shariah: false },
-  { symbol: 'PRL', name: 'Pakistan Refinery Ltd', sector: 'Refinery', price: 30.15, change: +5.30, base: 28.5, volume: '28.9M', pe: 3.9, mktCap: '36B', yield: '0.0%', shariah: true },
-  { symbol: 'ATRL', name: 'Attock Refinery Ltd', sector: 'Refinery', price: 395.00, change: +2.60, base: 385.0, volume: '3.6M', pe: 4.1, mktCap: '42B', yield: '7.8%', shariah: true },
+  { symbol: 'OGDC', name: 'Oil & Gas Development Co', sector: 'Oil & Gas', price: 174.50, change: +3.85, base: 170.0, volume: '18.4M', avgVol: '14.2M', pe: 4.8, mktCap: '750B', yield: '9.2%', shariah: true, earnings: 'Nov 08, 2026', range52: '110.0 - 182.5' },
+  { symbol: 'PPL', name: 'Pakistan Petroleum Ltd', sector: 'Oil & Gas', price: 126.20, change: +2.15, base: 123.0, volume: '11.2M', avgVol: '9.1M', pe: 5.2, mktCap: '343B', yield: '8.4%', shariah: true, earnings: 'Oct 28, 2026', range52: '82.0 - 134.0' },
+  { symbol: 'MARI', name: 'Mari Energies Ltd', sector: 'Oil & Gas', price: 2840.00, change: +4.10, base: 2780.0, volume: '1.2M', avgVol: '850K', pe: 7.9, mktCap: '422B', yield: '6.1%', shariah: true, earnings: 'Nov 02, 2026', range52: '1680.0 - 2950.0' },
+  { symbol: 'POL', name: 'Pakistan Oilfields Ltd', sector: 'Oil & Gas', price: 485.00, change: +1.40, base: 478.0, volume: '2.4M', avgVol: '1.9M', pe: 6.2, mktCap: '138B', yield: '14.5%', shariah: true, earnings: 'Oct 30, 2026', range52: '380.0 - 510.0' },
+  { symbol: 'PSO', name: 'Pakistan State Oil', sector: 'Oil Marketing', price: 218.30, change: -1.75, base: 221.0, volume: '4.8M', avgVol: '5.2M', pe: 6.1, mktCap: '102B', yield: '4.8%', shariah: false, earnings: 'Oct 25, 2026', range52: '150.0 - 238.0' },
+  { symbol: 'PRL', name: 'Pakistan Refinery Ltd', sector: 'Refinery', price: 30.15, change: +5.30, base: 28.5, volume: '28.9M', avgVol: '20.1M', pe: 3.9, mktCap: '36B', yield: '0.0%', shariah: true, earnings: 'Nov 12, 2026', range52: '18.2 - 34.5' },
+  { symbol: 'ATRL', name: 'Attock Refinery Ltd', sector: 'Refinery', price: 395.00, change: +2.60, base: 385.0, volume: '3.6M', avgVol: '2.8M', pe: 4.1, mktCap: '42B', yield: '7.8%', shariah: true, earnings: 'Oct 29, 2026', range52: '290.0 - 425.0' },
 
   // Commercial Banks
-  { symbol: 'MEBL', name: 'Meezan Bank Ltd', sector: 'Banking', price: 236.00, change: +1.95, base: 231.0, volume: '6.8M', pe: 5.6, mktCap: '412B', yield: '11.8%', shariah: true },
-  { symbol: 'HBL', name: 'Habib Bank Ltd', sector: 'Banking', price: 132.50, change: -0.85, base: 133.5, volume: '5.2M', pe: 4.2, mktCap: '194B', yield: '10.5%', shariah: false },
-  { symbol: 'MCB', name: 'MCB Bank Ltd', sector: 'Banking', price: 229.40, change: +0.40, base: 228.0, volume: '3.1M', pe: 5.1, mktCap: '271B', yield: '13.2%', shariah: false },
-  { symbol: 'UBL', name: 'United Bank Ltd', sector: 'Banking', price: 288.00, change: +2.10, base: 282.0, volume: '4.9M', pe: 4.9, mktCap: '352B', yield: '15.6%', shariah: false },
-  { symbol: 'BAFL', name: 'Bank Alfalah Ltd', sector: 'Banking', price: 68.50, change: +1.20, base: 67.5, volume: '7.4M', pe: 4.4, mktCap: '108B', yield: '12.0%', shariah: false },
-  { symbol: 'BIPL', name: 'BankIslami Pakistan', sector: 'Banking', price: 24.80, change: +3.10, base: 24.0, volume: '8.2M', pe: 4.1, mktCap: '27B', yield: '9.0%', shariah: true },
+  { symbol: 'MEBL', name: 'Meezan Bank Ltd', sector: 'Banking', price: 236.00, change: +1.95, base: 231.0, volume: '6.8M', avgVol: '5.4M', pe: 5.6, mktCap: '412B', yield: '11.8%', shariah: true, earnings: 'Nov 03, 2026', range52: '142.0 - 248.0' },
+  { symbol: 'HBL', name: 'Habib Bank Ltd', sector: 'Banking', price: 132.50, change: -0.85, base: 133.5, volume: '5.2M', avgVol: '6.1M', pe: 4.2, mktCap: '194B', yield: '10.5%', shariah: false, earnings: 'Oct 26, 2026', range52: '98.0 - 146.0' },
+  { symbol: 'MCB', name: 'MCB Bank Ltd', sector: 'Banking', price: 229.40, change: +0.40, base: 228.0, volume: '3.1M', avgVol: '3.8M', pe: 5.1, mktCap: '271B', yield: '13.2%', shariah: false, earnings: 'Oct 24, 2026', range52: '172.0 - 240.0' },
+  { symbol: 'UBL', name: 'United Bank Ltd', sector: 'Banking', price: 288.00, change: +2.10, base: 282.0, volume: '4.9M', avgVol: '4.2M', pe: 4.9, mktCap: '352B', yield: '15.6%', shariah: false, earnings: 'Oct 27, 2026', range52: '185.0 - 302.0' },
+  { symbol: 'BAFL', name: 'Bank Alfalah Ltd', sector: 'Banking', price: 68.50, change: +1.20, base: 67.5, volume: '7.4M', avgVol: '6.2M', pe: 4.4, mktCap: '108B', yield: '12.0%', shariah: false, earnings: 'Nov 01, 2026', range52: '46.0 - 74.0' },
 
   // Cement
-  { symbol: 'LUCK', name: 'Lucky Cement Ltd', sector: 'Cement', price: 935.00, change: +2.80, base: 910.0, volume: '2.1M', pe: 8.4, mktCap: '292B', yield: '3.5%', shariah: true },
-  { symbol: 'DGKC', name: 'D.G. Khan Cement', sector: 'Cement', price: 85.50, change: +1.70, base: 84.0, volume: '9.5M', pe: 6.8, mktCap: '37B', yield: '0.0%', shariah: true },
-  { symbol: 'MLCF', name: 'Maple Leaf Cement', sector: 'Cement', price: 42.60, change: -1.20, base: 43.1, volume: '14.2M', pe: 7.1, mktCap: '45B', yield: '4.8%', shariah: true },
-  { symbol: 'CHCC', name: 'Cherat Cement Co', sector: 'Cement', price: 182.00, change: +3.40, base: 176.0, volume: '3.8M', pe: 7.6, mktCap: '35B', yield: '5.2%', shariah: true },
+  { symbol: 'LUCK', name: 'Lucky Cement Ltd', sector: 'Cement', price: 935.00, change: +2.80, base: 910.0, volume: '2.1M', avgVol: '1.8M', pe: 8.4, mktCap: '292B', yield: '3.5%', shariah: true, earnings: 'Oct 31, 2026', range52: '680.0 - 990.0' },
+  { symbol: 'DGKC', name: 'D.G. Khan Cement', sector: 'Cement', price: 85.50, change: +1.70, base: 84.0, volume: '9.5M', avgVol: '7.8M', pe: 6.8, mktCap: '37B', yield: '0.0%', shariah: true, earnings: 'Nov 05, 2026', range52: '58.0 - 92.0' },
+  { symbol: 'MLCF', name: 'Maple Leaf Cement', sector: 'Cement', price: 42.60, change: -1.20, base: 43.1, volume: '14.2M', avgVol: '12.5M', pe: 7.1, mktCap: '45B', yield: '4.8%', shariah: true, earnings: 'Oct 29, 2026', range52: '32.0 - 46.5' },
 
   // Technology & Telecom
-  { symbol: 'SYS', name: 'Systems Limited', sector: 'Technology', price: 452.00, change: -2.30, base: 462.0, volume: '4.1M', pe: 14.5, mktCap: '128B', yield: '1.8%', shariah: true },
-  { symbol: 'TRG', name: 'TRG Pakistan Ltd', sector: 'Technology', price: 59.80, change: -3.60, base: 62.0, volume: '16.5M', pe: 8.2, mktCap: '32B', yield: '0.0%', shariah: false },
-  { symbol: 'AIRLINK', name: 'Air Link Communication', sector: 'Technology', price: 114.50, change: +3.20, base: 111.0, volume: '8.4M', pe: 11.0, mktCap: '45B', yield: '3.5%', shariah: true },
-  { symbol: 'WTL', name: 'WorldCall Telecom', sector: 'Technology', price: 1.39, change: +0.00, base: 1.39, volume: '42.1M', pe: 2.1, mktCap: '6B', yield: '0.0%', shariah: false },
+  { symbol: 'SYS', name: 'Systems Limited', sector: 'Technology', price: 452.00, change: -2.30, base: 462.0, volume: '4.1M', avgVol: '3.4M', pe: 14.5, mktCap: '128B', yield: '1.8%', shariah: true, earnings: 'Nov 04, 2026', range52: '380.0 - 495.0' },
+  { symbol: 'TRG', name: 'TRG Pakistan Ltd', sector: 'Technology', price: 59.80, change: -3.60, base: 62.0, volume: '16.5M', avgVol: '18.2M', pe: 8.2, mktCap: '32B', yield: '0.0%', shariah: false, earnings: 'Oct 30, 2026', range52: '48.0 - 82.0' },
+  { symbol: 'AIRLINK', name: 'Air Link Communication', sector: 'Technology', price: 114.50, change: +3.20, base: 111.0, volume: '8.4M', avgVol: '6.9M', pe: 11.0, mktCap: '45B', yield: '3.5%', shariah: true, earnings: 'Nov 06, 2026', range52: '65.0 - 124.0' },
+  { symbol: 'WTL', name: 'WorldCall Telecom', sector: 'Technology', price: 1.39, change: +0.00, base: 1.39, volume: '42.1M', avgVol: '38.0M', pe: 2.1, mktCap: '6B', yield: '0.0%', shariah: false, earnings: 'Oct 20, 2026', range52: '1.15 - 1.65' },
 
   // Fertilizer & Power
-  { symbol: 'ENGRO', name: 'Engro Corporation', sector: 'Fertilizer', price: 348.00, change: +1.20, base: 343.0, volume: '3.4M', pe: 6.3, mktCap: '188B', yield: '12.5%', shariah: true },
-  { symbol: 'FFC', name: 'Fauji Fertilizer Co', sector: 'Fertilizer', price: 204.50, change: +0.65, base: 203.0, volume: '5.1M', pe: 5.8, mktCap: '260B', yield: '14.2%', shariah: true },
-  { symbol: 'HUBC', name: 'Hub Power Company', sector: 'Power', price: 146.20, change: +4.20, base: 140.0, volume: '19.8M', pe: 4.5, mktCap: '189B', yield: '17.5%', shariah: true },
-  { symbol: 'KEL', name: 'K-Electric Ltd', sector: 'Power', price: 4.95, change: +2.10, base: 4.85, volume: '58.2M', pe: 3.2, mktCap: '136B', yield: '0.0%', shariah: false },
+  { symbol: 'ENGRO', name: 'Engro Corporation', sector: 'Fertilizer', price: 348.00, change: +1.20, base: 343.0, volume: '3.4M', avgVol: '2.9M', pe: 6.3, mktCap: '188B', yield: '12.5%', shariah: true, earnings: 'Oct 28, 2026', range52: '280.0 - 370.0' },
+  { symbol: 'FFC', name: 'Fauji Fertilizer Co', sector: 'Fertilizer', price: 204.50, change: +0.65, base: 203.0, volume: '5.1M', avgVol: '4.4M', pe: 5.8, mktCap: '260B', yield: '14.2%', shariah: true, earnings: 'Oct 27, 2026', range52: '115.0 - 218.0' },
+  { symbol: 'HUBC', name: 'Hub Power Company', sector: 'Power', price: 146.20, change: +4.20, base: 140.0, volume: '19.8M', avgVol: '15.2M', pe: 4.5, mktCap: '189B', yield: '17.5%', shariah: true, earnings: 'Oct 29, 2026', range52: '98.0 - 158.0' },
+  { symbol: 'KEL', name: 'K-Electric Ltd', sector: 'Power', price: 4.95, change: +2.10, base: 4.85, volume: '58.2M', avgVol: '48.0M', pe: 3.2, mktCap: '136B', yield: '0.0%', shariah: false, earnings: 'Oct 18, 2026', range52: '3.8 - 6.2' },
 
   // Automobile
-  { symbol: 'INDU', name: 'Indus Motor Co Ltd', sector: 'Automobile', price: 1640.00, change: +4.50, base: 1570.0, volume: '380K', pe: 10.2, mktCap: '129B', yield: '5.2%', shariah: true },
-  { symbol: 'MTL', name: 'Millat Tractors Ltd', sector: 'Automobile', price: 618.00, change: -1.40, base: 626.0, volume: '950K', pe: 9.4, mktCap: '118B', yield: '8.5%', shariah: true },
+  { symbol: 'INDU', name: 'Indus Motor Co Ltd', sector: 'Automobile', price: 1640.00, change: +4.50, base: 1570.0, volume: '380K', avgVol: '290K', pe: 10.2, mktCap: '129B', yield: '5.2%', shariah: true, earnings: 'Oct 31, 2026', range52: '1250.0 - 1720.0' },
+  { symbol: 'MTL', name: 'Millat Tractors Ltd', sector: 'Automobile', price: 618.00, change: -1.40, base: 626.0, volume: '950K', avgVol: '820K', pe: 9.4, mktCap: '118B', yield: '8.5%', shariah: true, earnings: 'Oct 26, 2026', range52: '490.0 - 680.0' },
 ];
 
-const MAJOR_INDICES = [
-  { symbol: 'KSE 100', name: 'PSX Benchmark Index', value: '112,450.25', change: '+845.60', percent: '+0.76%', isUp: true },
-  { symbol: 'KMI 30', name: 'Islamic Shariah Index', value: '38,120.40', change: '+412.30', percent: '+1.09%', isUp: true },
-  { symbol: 'KSE 30', name: 'Large Cap Index', value: '34,980.70', change: '-110.20', percent: '-0.31%', isUp: false },
-  { symbol: 'ALL SHARES', name: 'PSX All Shares Index', value: '72,890.10', change: '+320.15', percent: '+0.44%', isUp: true },
-  { symbol: 'OGTI', name: 'Oil & Gas Tradable Index', value: '18,450.80', change: '+240.50', percent: '+1.32%', isUp: true },
-  { symbol: 'BKTI', name: 'Banking Tradable Index', value: '24,190.20', change: '+180.10', percent: '+0.75%', isUp: true },
+const WATCHLIST_INDICES = [
+  { symbol: 'KSE 100', last: '172,013.48', chg: '+3,994.62', chgPct: '+2.38%', isUp: true },
+  { symbol: 'KMI 30', last: '38,120.40', chg: '+412.30', chgPct: '+1.09%', isUp: true },
+  { symbol: 'KSE 30', last: '34,980.70', chg: '-110.20', chgPct: '-0.31%', isUp: false },
+  { symbol: 'ALL SHARES', last: '72,890.10', chg: '+320.15', chgPct: '+0.44%', isUp: true },
 ];
 
-// Community Ideas with High-Resolution Charts & Certified Analysts
-const COMMUNITY_IDEAS = [
+const WATCHLIST_FOREX_FUTURES = [
+  { symbol: 'USD/PKR', last: '278.45', chg: '-0.15', chgPct: '-0.05%', isUp: false },
+  { symbol: 'EUR/PKR', last: '302.20', chg: '+0.85', chgPct: '+0.28%', isUp: true },
+  { symbol: 'GOLD 24K', last: '284,500', chg: '+2,200', chgPct: '+0.78%', isUp: true },
+  { symbol: 'CRUDE OIL', last: '74.20', chg: '-0.65', chgPct: '-0.87%', isUp: false },
+];
+
+// Featured IPOs (PSX Specific)
+const FEATURED_IPOS = [
+  { symbol: 'FCL', name: 'Fast Cables Limited', exchange: 'PSX', valuation: 'PKR 14.2B', status: 'Book Building Closed', subRatio: '2.4x' },
+  { symbol: 'SLGL', name: 'Secure Logistics Group', exchange: 'PSX', valuation: 'PKR 8.9B', status: 'Listed', subRatio: '1.8x' },
+  { symbol: 'IPAK', name: 'International Packaging', exchange: 'PSX', valuation: 'PKR 5.6B', status: 'Upcoming', subRatio: 'Opening' },
+  { symbol: 'GOPET', name: 'GO Petroleum Pakistan', exchange: 'PSX', valuation: 'PKR 32.0B', status: 'Pre-IPO Appraisal', subRatio: 'Approved' },
+  { symbol: 'TPLR', name: 'TPL REIT Fund I', exchange: 'PSX', valuation: 'PKR 18.5B', status: 'Listed', subRatio: '1.5x' },
+];
+
+// Breaking Economic News impacting Pakistan Stocks
+const MARKET_NEWS_FEED = [
   {
     id: 1,
-    title: 'OGDC: Key Support Bounce & Potential Bullish Expansion',
-    author: 'Tariq Equity Research',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-    symbol: 'OGDC',
-    target: 'PKR 198.00',
-    type: 'LONG',
+    headline: 'Young Pakistanis drive record surge at PSX; SECP reports 25,747 new accounts opened in October 2026',
+    outlet: 'ProPakistani & Dawn',
     time: '2 hours ago',
-    image: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&auto=format&fit=crop&q=60',
-    desc: 'OGDC has formed a textbook cup-and-handle above 172 PKR neckline. Institutional blocks indicate strong multi-week accumulation.',
-    likes: 184,
-    comments: 32
+    tag: 'RETAIL INFLOWS',
+    impact: 'Bullish for Financials & Tech',
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&auto=format&fit=crop&q=60'
   },
   {
     id: 2,
-    title: 'MEBL: Sustained Islamic Banking Alpha with High Spread Resilience',
-    author: 'Meezan Securities Desk',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80',
-    symbol: 'MEBL',
-    target: 'PKR 265.00',
-    type: 'ACCUMULATE',
+    headline: 'State Bank maintains aggressive monetary easing cycle as headline CPI stabilizes below 7.5%',
+    outlet: 'Business Recorder',
     time: '4 hours ago',
-    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=60',
-    desc: 'Return on Equity (ROE) remains unmatched at 46%. Low cost of deposit mix shields margins against monetary easing cycle.',
-    likes: 142,
-    comments: 19
+    tag: 'MONETARY POLICY',
+    impact: 'Positive for Cement & Autos',
+    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500&auto=format&fit=crop&q=60'
   },
   {
     id: 3,
-    title: 'SYS: Re-testing 50 EMA Support Zone before Continuation Leg',
-    author: 'PSX Alpha Technicians',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
-    symbol: 'SYS',
-    target: 'PKR 430.00',
-    type: 'PULLBACK',
+    headline: 'Energy circular debt settlement plan enters phase 2 with sovereign guarantees for OGDC and PPL',
+    outlet: 'The News International',
     time: '6 hours ago',
-    image: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&auto=format&fit=crop&q=60',
-    desc: 'Healthy corrective structure after hitting 462 resistance. Expect strong buyer defense near 428-432 level.',
-    likes: 98,
-    comments: 14
+    tag: 'ENERGY DIVIDENDS',
+    impact: 'High Cashflow Clearance',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=60'
   },
   {
     id: 4,
-    title: 'LUCK: Clinker Capacity Expansion & Export Growth Valuation',
-    author: 'Karachi Capital Advisory',
-    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&auto=format&fit=crop&q=80',
-    symbol: 'LUCK',
-    target: 'PKR 1020.00',
-    type: 'SWING LONG',
+    headline: 'Tech exports cross $3.4 Billion annualized benchmark led by Systems Ltd and Air Link expansion',
+    outlet: 'Profit by Pakistan Today',
     time: '8 hours ago',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60',
-    desc: 'Synergies from international acquisitions and falling global coal prices expanding operating EBITDA by 280 bps.',
-    likes: 126,
-    comments: 21
+    tag: 'TECH GROWTH',
+    impact: 'IT Export Resilience',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&auto=format&fit=crop&q=60'
   }
 ];
 
-export default function TradingViewPortal() {
-  const [selectedStock, setSelectedStock] = useState(PSX_UNIVERSE[0]);
-  const [activeTab, setActiveTab] = useState<'chart' | 'screener'>('chart');
-  const [chartMode, setChartMode] = useState<'candles' | 'area'>('candles');
-  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y' | 'ALL'>('1D');
+// Analyst & Influencer Trading Tips
+const INFLUENCER_TIPS = [
+  {
+    name: 'Khurram Schezad',
+    title: 'Macro & Capital Markets Advisor',
+    handle: '@khurramschezad',
+    call: 'BUY ON DIPS (KSE-100)',
+    tip: 'Macro stabilization, fiscal consolidation and falling interest rates create historical re-rating for high-dividend yield state-owned enterprises (OGDC, PPL, FFC).',
+    accuracy: '89%'
+  },
+  {
+    name: 'KSE Alpha Desk',
+    title: 'Institutional Equity Strategist',
+    handle: '@kse_alpha',
+    call: 'ACCUMULATE (PRL & MEBL)',
+    tip: 'Refinery upgrade policy incentives make PRL a multi-quarter structural play. Meezan Bank remains South Asia top asset yield bank.',
+    accuracy: '92%'
+  },
+  {
+    name: 'Ahsan Mehanti',
+    title: 'Managing Director, Arif Habib Commodities',
+    handle: '@ahsanmehanti',
+    call: 'TARGET 175,000 (KSE-100)',
+    tip: 'Foreign portfolio flows returning after Pakistan bilateral loan extensions and structural privatization announcements.',
+    accuracy: '86%'
+  }
+];
 
-  // Interactive Graph Crosshair State
+export default function CompleteTradingViewPlatform() {
+  // Theme Controls
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+  const [accentColor, setAccentColor] = useState<'sky' | 'teal' | 'lime' | 'violet'>('sky');
+
+  // Active Asset
+  const [selectedStock, setSelectedStock] = useState(PSX_UNIVERSE[0]);
+  const [chartMode, setChartMode] = useState<'candles' | 'area'>('candles');
+  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
+
+  // Interactive Chart Crosshair State
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
   const [hoveredCandle, setHoveredCandle] = useState<any>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Screener Filters
+  // Screener Table Organization & Filters
+  const [screenerTab, setScreenerTab] = useState<'all' | 'gainers' | 'losers' | 'volume' | 'priceLow' | 'priceHigh'>('all');
+  const [selectedSector, setSelectedSector] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sectorFilter, setSectorFilter] = useState('ALL');
-  const [shariahOnly, setShariahOnly] = useState(false);
+  const [shariahFilter, setShariahFilter] = useState(false);
+  const [tablePage, setTablePage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
-  // Dedicated Smart Averaging Desk (Floating / Docked Component)
+  // Smart Averaging Desk (Floating / Docked Component)
   const [showAveragingModal, setShowAveragingModal] = useState(false);
   const [holdingQty, setHoldingQty] = useState('1000');
   const [holdingPrice, setHoldingPrice] = useState('180.00');
@@ -138,35 +165,67 @@ export default function TradingViewPortal() {
   const [limitBid, setLimitBid] = useState('168.00');
   const [includeFees, setIncludeFees] = useState(true);
 
-  // Generate 45 realistic continuous daily candles for selected stock
-  const candleData = useMemo(() => {
+  // Accent Colors Mapping (Custom Light Blue / Sky Blue included!)
+  const ACCENT_STYLES = {
+    sky: {
+      btn: 'bg-sky-600 hover:bg-sky-700 text-white',
+      badge: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',
+      activeTab: 'bg-sky-500 text-white shadow-sm',
+      text: 'text-sky-600 dark:text-sky-400',
+      line: '#0284c7'
+    },
+    teal: {
+      btn: 'bg-[#089981] hover:bg-[#067764] text-white',
+      badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+      activeTab: 'bg-[#089981] text-white shadow-sm',
+      text: 'text-[#089981]',
+      line: '#089981'
+    },
+    lime: {
+      btn: 'bg-lime-500 hover:bg-lime-600 text-black font-extrabold',
+      badge: 'bg-lime-50 text-lime-800 border-lime-300 dark:bg-lime-950/50 dark:text-lime-300 dark:border-lime-800',
+      activeTab: 'bg-lime-400 text-black font-bold shadow-sm',
+      text: 'text-lime-600 dark:text-lime-400',
+      line: '#84cc16'
+    },
+    violet: {
+      btn: 'bg-indigo-600 hover:bg-indigo-700 text-white',
+      badge: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800',
+      activeTab: 'bg-indigo-600 text-white shadow-sm',
+      text: 'text-indigo-600 dark:text-indigo-400',
+      line: '#6366f1'
+    }
+  };
+
+  const currentAccent = ACCENT_STYLES[accentColor];
+
+  // 45 Continuous Daily Candlesticks
+  const candleHistory = useMemo(() => {
     const list = [];
     let p = selectedStock.base;
     const now = new Date();
     for (let i = 44; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const change = (Math.sin(i * 0.35) + (Math.random() - 0.46)) * (selectedStock.base * 0.022);
+      const dateStr = d.toLocaleDateString('en-PK', { month: 'short', day: 'numeric' });
+      const change = (Math.sin(i * 0.38) + (Math.random() - 0.46)) * (selectedStock.base * 0.024);
       const open = parseFloat(p.toFixed(2));
       const close = parseFloat((p + change).toFixed(2));
       const high = parseFloat((Math.max(open, close) + Math.random() * (selectedStock.base * 0.012)).toFixed(2));
       const low = parseFloat((Math.min(open, close) - Math.random() * (selectedStock.base * 0.012)).toFixed(2));
-      const vol = Math.floor(Math.random() * 8000000) + 1500000;
-      list.push({ date: dateStr, open, high, low, close, volume: vol });
+      const volume = Math.floor(Math.random() * 8000000) + 1500000;
+      list.push({ date: dateStr, open, high, low, close, volume });
       p = close;
     }
     list[list.length - 1].close = selectedStock.price;
     return list;
   }, [selectedStock]);
 
-  const activeCandle = hoveredCandle || candleData[candleData.length - 1];
-
-  // Chart Dimensions & Ranges
-  const minLow = Math.min(...candleData.map((c) => c.low));
-  const maxHigh = Math.max(...candleData.map((c) => c.high));
+  const activeCandle = hoveredCandle || candleHistory[candleHistory.length - 1];
+  const minLow = Math.min(...candleHistory.map((c) => c.low));
+  const maxHigh = Math.max(...candleHistory.map((c) => c.high));
   const priceRange = maxHigh - minLow || 1;
 
-  // Mouse Move Event on Chart for Crosshair
+  // Crosshair Handler
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
@@ -174,12 +233,11 @@ export default function TradingViewPortal() {
     const y = e.clientY - rect.top;
     setCursorPos({ x, y });
 
-    // Find nearest candle
     const index = Math.min(
-      candleData.length - 1,
-      Math.max(0, Math.floor((x / rect.width) * candleData.length))
+      candleHistory.length - 1,
+      Math.max(0, Math.floor((x / rect.width) * candleHistory.length))
     );
-    setHoveredCandle(candleData[index]);
+    setHoveredCandle(candleHistory[index]);
   };
 
   const handleMouseLeave = () => {
@@ -193,144 +251,209 @@ export default function TradingViewPortal() {
   const nQty = parseFloat(orderShares) || 0;
   const execPrice = orderType === 'limit' && limitBid ? parseFloat(limitBid) || 0 : selectedStock.price;
   const tradeVal = nQty * execPrice;
-  const charges = includeFees ? tradeVal * 0.0018 : 0;
+  const charges = includeFees ? tradeVal * 0.0018 : 0; // PSX standard 0.18%
   const capitalReq = tradeVal + charges;
-  const finalQty = eQty + nQty;
-  const newAvg = finalQty > 0 ? (eQty * ePrice + capitalReq) / finalQty : 0;
+  const finalShares = eQty + nQty;
+  const newAvg = finalShares > 0 ? (eQty * ePrice + capitalReq) / finalShares : 0;
   const deltaAvg = ePrice > 0 ? newAvg - ePrice : 0;
 
-  // Filter Directory
-  const filteredList = useMemo(() => {
-    return PSX_UNIVERSE.filter((s) => {
+  // Filtered & Sorted Screener Directory
+  const processedStocks = useMemo(() => {
+    let result = PSX_UNIVERSE.filter((s) => {
       const match = s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) || s.name.toLowerCase().includes(searchQuery.toLowerCase());
       if (!match) return false;
-      if (shariahOnly && !s.shariah) return false;
-      if (sectorFilter === 'ALL') return true;
-      return s.sector.toLowerCase() === sectorFilter.toLowerCase();
+      if (shariahFilter && !s.shariah) return false;
+      if (selectedSector === 'ALL') return true;
+      return s.sector.toLowerCase() === selectedSector.toLowerCase();
     });
-  }, [searchQuery, sectorFilter, shariahOnly]);
 
+    if (screenerTab === 'gainers') result.sort((a, b) => b.change - a.change);
+    if (screenerTab === 'losers') result.sort((a, b) => a.change - b.change);
+    if (screenerTab === 'volume') result.sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume));
+    if (screenerTab === 'priceLow') result.sort((a, b) => a.price - b.price);
+    if (screenerTab === 'priceHigh') result.sort((a, b) => b.price - a.price);
+
+    return result;
+  }, [searchQuery, shariahFilter, selectedSector, screenerTab]);
+
+  const totalPages = Math.ceil(processedStocks.length / ITEMS_PER_PAGE);
+  const currentStocksPage = processedStocks.slice((tablePage - 1) * ITEMS_PER_PAGE, tablePage * ITEMS_PER_PAGE);
   const sectors = useMemo(() => ['ALL', ...Array.from(new Set(PSX_UNIVERSE.map((s) => s.sector)))], []);
 
+  // 4 Movers Grids Data
+  const topGainers = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => b.change - a.change).slice(0, 5), []);
+  const topLosers = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => a.change - b.change).slice(0, 5), []);
+  const volumeLeaders = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume)).slice(0, 5), []);
+  const mostVolatile = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 5), []);
+
+  const isDark = themeMode === 'dark';
+
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#131722] flex flex-col font-sans">
+    <div className={`w-full min-h-screen transition-colors duration-200 ${isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#ffffff] text-[#131722]'}`}>
       
-      {/* 1. TOP GLOBAL NAVIGATION HEADER (TradingView Exact Style) */}
-      <header className="border-b border-[#e0e3eb] bg-white px-5 py-2.5 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-7">
-          {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="shrink-0">
-              <rect width="28" height="28" rx="6" fill="#131722" />
-              <path d="M7 19L11.5 10L16 16L21 8" stroke="#089981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="font-extrabold text-lg tracking-tight text-[#131722]">
-              TradingView <span className="text-xs bg-[#f0f3fa] text-[#2962ff] px-2 py-0.5 rounded font-bold ml-1">PSX</span>
-            </span>
+      {/* 1. TOP GLOBAL HEADER WITH FULL WIDTH & CONTROLS */}
+      <header className={`w-full border-b px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-50 transition-colors ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+        
+        {/* Brand & Left Navigation */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2.5 cursor-pointer">
+            <div className="w-8 h-8 rounded-lg bg-[#0284c7] flex items-center justify-center font-black text-white text-sm shadow-md">
+              NX
+            </div>
+            <div>
+              <span className="font-extrabold text-base tracking-tight block">
+                NafaX <span className="text-sky-500 font-bold">Terminal</span>
+              </span>
+              <span className="text-[10px] text-slate-400 block -mt-1">Pakistan Stock Exchange Pro</span>
+            </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-[#787b86]">
-            <span className="text-[#131722] cursor-pointer hover:text-[#2962ff] transition">Markets</span>
-            <span className="cursor-pointer hover:text-[#131722] transition">Community</span>
-            <span className="cursor-pointer hover:text-[#131722] transition">Screener</span>
-            <span className="cursor-pointer hover:text-[#131722] transition">Brokers</span>
-            <span className="cursor-pointer hover:text-[#131722] transition">More</span>
+          <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-slate-400">
+            <span className={`cursor-pointer transition ${isDark ? 'text-white' : 'text-slate-900'}`}>Markets</span>
+            <span className="cursor-pointer hover:text-sky-500 transition">Screener</span>
+            <span className="cursor-pointer hover:text-sky-500 transition">Community Ideas</span>
+            <span className="cursor-pointer hover:text-sky-500 transition">IPOs</span>
+            <span className="cursor-pointer hover:text-sky-500 transition">Brokers</span>
           </nav>
         </div>
 
-        {/* Right Action Icons & Averaging Desk Button */}
+        {/* Right Corner Controls: Theme Toggle & Accent Color Picker (As requested!) */}
         <div className="flex items-center gap-3">
+          
+          {/* Smart Averaging Desk Trigger */}
           <button
             onClick={() => setShowAveragingModal(true)}
-            className="flex items-center gap-2 bg-[#089981]/10 border border-[#089981]/30 text-[#089981] hover:bg-[#089981] hover:text-white px-3.5 py-1.5 rounded-full text-xs font-bold transition shadow-sm font-num"
+            className="flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/30 text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm font-num"
           >
-            <span>⚡</span> Smart Averaging Desk
+            <span>⚡</span> Averaging Desk
           </button>
 
-          <div className="h-5 w-[1px] bg-[#e0e3eb] hidden sm:block"></div>
+          {/* Color Switcher Dropdown (Aap ke finalization ke liye) */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+            <span className="text-[10px] text-slate-400 px-1 font-semibold hidden sm:inline">Theme:</span>
+            <button
+              onClick={() => setAccentColor('sky')}
+              className={`w-4 h-4 rounded-full bg-sky-500 border transition ${accentColor === 'sky' ? 'ring-2 ring-sky-400 scale-110' : 'opacity-70'}`}
+              title="Ice Light Blue"
+            />
+            <button
+              onClick={() => setAccentColor('teal')}
+              className={`w-4 h-4 rounded-full bg-[#089981] border transition ${accentColor === 'teal' ? 'ring-2 ring-emerald-400 scale-110' : 'opacity-70'}`}
+              title="TradingView Teal"
+            />
+            <button
+              onClick={() => setAccentColor('lime')}
+              className={`w-4 h-4 rounded-full bg-lime-400 border transition ${accentColor === 'lime' ? 'ring-2 ring-lime-400 scale-110' : 'opacity-70'}`}
+              title="Electric Lime"
+            />
+            <button
+              onClick={() => setAccentColor('violet')}
+              className={`w-4 h-4 rounded-full bg-indigo-500 border transition ${accentColor === 'violet' ? 'ring-2 ring-indigo-400 scale-110' : 'opacity-70'}`}
+              title="Royal Violet"
+            />
+          </div>
 
-          <button className="bg-[#2962ff] hover:bg-[#1e53e5] text-white text-xs font-bold px-4 py-2 rounded-full transition shadow-sm">
-            Start Free Trial
+          {/* Light / Dark Mode Toggle Button */}
+          <button
+            onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center gap-1"
+            title="Toggle Light / Dark Mode"
+          >
+            {isDark ? '☀️ Light' : '🌙 Dark'}
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN WORKSPACE / HERO: MARKET SUMMARY (TradingView Homepage Replica) */}
-      <div className="max-w-[1600px] mx-auto w-full px-4 py-5 space-y-6">
+      {/* 2. COMMUNITY TRENDS STRIP (Screenshot 6: Horizontal Pills) */}
+      <section className={`w-full border-b px-4 sm:px-6 py-2 overflow-x-auto flex items-center gap-3 text-xs font-num ${isDark ? 'bg-[#0c101a] border-slate-800' : 'bg-[#f8fafd] border-[#e0e3eb]'}`}>
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
+          <span>🔥</span> PSX Trends:
+        </span>
+        {['OGDC', 'MEBL', 'SYS', 'PRL', 'HUBC', 'LUCK', 'AIRLINK', 'ENGRO'].map((sym) => {
+          const stk = PSX_UNIVERSE.find((s) => s.symbol === sym) || PSX_UNIVERSE[0];
+          const isUp = stk.change >= 0;
+          return (
+            <div
+              key={sym}
+              onClick={() => setSelectedStock(stk)}
+              className={`shrink-0 px-3 py-1.5 rounded-lg border cursor-pointer transition flex items-center gap-2 ${
+                selectedStock.symbol === sym
+                  ? `${currentAccent.badge} font-bold shadow-sm`
+                  : isDark
+                  ? 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <span className="font-extrabold text-xs">{sym}</span>
+              <span className="font-medium">PKR {stk.price.toFixed(1)}</span>
+              <span className={`text-[11px] font-bold ${isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                {isUp ? `+${stk.change}%` : `${stk.change}%`}
+              </span>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* 3. MAIN TERMINAL WORKSPACE (FULL WIDTH 100% RESPONSIVE) */}
+      <div className="w-full px-4 sm:px-6 py-4 space-y-6">
         
-        {/* Title Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-black text-[#131722] flex items-center gap-2">
-              Market summary <span className="text-[#787b86] text-xl font-normal">›</span>
-            </h1>
-            <p className="text-xs text-[#787b86]">Pakistan Stock Exchange, Benchmark Indices, Currencies, and Macro Trends</p>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-semibold">
-            <span className="text-[#089981] flex items-center gap-1">● Live Trading Session</span>
-            <span className="text-[#787b86]">• 09:15 AM - 03:30 PM PKT</span>
-          </div>
-        </div>
-
-        {/* BIG CHART HERO GRID (Exact TradingView Hero Section) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* ROW 1: TRADINGVIEW INTERACTIVE CHART (LEFT 9 COLS) + WATCHLIST & KEY STATS (RIGHT 3 COLS) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           
-          {/* Main Chart Box (8 Cols) */}
-          <div className="lg:col-span-8 bg-white border border-[#e0e3eb] rounded-2xl p-5 shadow-sm space-y-4">
+          {/* Main Chart Area (9 Cols) */}
+          <div className={`lg:col-span-9 rounded-2xl border p-4 sm:p-5 shadow-sm space-y-4 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
             
-            {/* Asset Header + Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0f3fa] pb-3">
+            {/* Header Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#131722] text-white flex items-center justify-center font-extrabold text-sm shadow-sm font-num">
+                <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-sm font-num">
                   {selectedStock.symbol}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-black text-[#131722]">{selectedStock.symbol}</h2>
-                    <span className="text-xs text-[#787b86] font-medium">{selectedStock.name}</span>
+                    <h2 className="text-xl font-black">{selectedStock.symbol}</h2>
+                    <span className="text-xs text-slate-400 font-medium">{selectedStock.name}</span>
                     {selectedStock.shariah && (
-                      <span className="text-[10px] bg-[#089981]/10 text-[#089981] border border-[#089981]/20 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-bold">
                         KMI Shariah
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 font-num mt-0.5">
-                    <span className="text-3xl font-black text-[#131722]">
+                    <span className="text-2xl sm:text-3xl font-black">
                       PKR {selectedStock.price.toFixed(2)}
                     </span>
-                    <span className={`text-sm font-bold flex items-center ${selectedStock.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                    <span className={`text-sm font-bold ${selectedStock.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                       {selectedStock.change >= 0 ? `+${selectedStock.change.toFixed(2)} (+${((selectedStock.change / selectedStock.base) * 100).toFixed(2)}%)` : `${selectedStock.change.toFixed(2)}`}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Timeframes & Candlestick Modes */}
+              {/* Timeframes & Modes */}
               <div className="flex items-center gap-2">
-                <div className="flex bg-[#f0f3fa] p-1 rounded-lg text-xs font-bold font-num text-[#787b86]">
-                  {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((t) => (
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs font-bold font-num text-slate-500">
+                  {(['1D', '1W', '1M', '1Y'] as const).map((t) => (
                     <button
                       key={t}
                       onClick={() => setTimeframe(t)}
-                      className={`px-2.5 py-1 rounded transition ${timeframe === t ? 'bg-white text-[#131722] shadow-sm' : 'hover:text-[#131722]'}`}
+                      className={`px-2.5 py-1 rounded transition ${timeframe === t ? currentAccent.activeTab : 'hover:text-slate-900 dark:hover:text-white'}`}
                     >
                       {t}
                     </button>
                   ))}
                 </div>
 
-                <div className="flex bg-[#f0f3fa] p-1 rounded-lg text-xs font-bold text-[#787b86]">
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs font-bold font-num text-slate-500">
                   <button
                     onClick={() => setChartMode('candles')}
-                    className={`px-2.5 py-1 rounded transition ${chartMode === 'candles' ? 'bg-white text-[#131722] shadow-sm' : 'hover:text-[#131722]'}`}
+                    className={`px-2.5 py-1 rounded transition ${chartMode === 'candles' ? currentAccent.activeTab : 'hover:text-slate-900 dark:hover:text-white'}`}
                   >
                     🕯️ Candles
                   </button>
                   <button
                     onClick={() => setChartMode('area')}
-                    className={`px-2.5 py-1 rounded transition ${chartMode === 'area' ? 'bg-white text-[#131722] shadow-sm' : 'hover:text-[#131722]'}`}
+                    className={`px-2.5 py-1 rounded transition ${chartMode === 'area' ? currentAccent.activeTab : 'hover:text-slate-900 dark:hover:text-white'}`}
                   >
                     📈 Line
                   </button>
@@ -338,62 +461,59 @@ export default function TradingViewPortal() {
               </div>
             </div>
 
-            {/* Live Crosshair HUD (Open, High, Low, Close, Volume) */}
-            <div className="flex flex-wrap items-center justify-between text-xs font-num bg-[#f8fafd] border border-[#e0e3eb] px-3 py-1.5 rounded-lg text-[#787b86]">
+            {/* Live Crosshair HUD */}
+            <div className={`flex flex-wrap items-center justify-between text-xs font-num px-3 py-1.5 rounded-lg border ${isDark ? 'bg-slate-900/60 border-slate-800 text-slate-400' : 'bg-[#f8fafd] border-[#e0e3eb] text-slate-600'}`}>
               <div className="flex items-center gap-4">
-                <span>DATE: <strong className="text-[#131722]">{activeCandle.date}</strong></span>
-                <span>O: <strong className="text-[#131722]">{activeCandle.open.toFixed(2)}</strong></span>
+                <span>DATE: <strong className={isDark ? 'text-white' : 'text-slate-900'}>{activeCandle.date}</strong></span>
+                <span>O: <strong className={isDark ? 'text-white' : 'text-slate-900'}>{activeCandle.open.toFixed(2)}</strong></span>
                 <span>H: <strong className="text-[#089981]">{activeCandle.high.toFixed(2)}</strong></span>
                 <span>L: <strong className="text-[#f23645]">{activeCandle.low.toFixed(2)}</strong></span>
                 <span>C: <strong className={activeCandle.close >= activeCandle.open ? 'text-[#089981]' : 'text-[#f23645]'}>{activeCandle.close.toFixed(2)}</strong></span>
               </div>
-              <div>VOL: <strong className="text-[#131722]">{(activeCandle.volume / 1000000).toFixed(2)}M</strong></div>
+              <div>VOL: <strong className={isDark ? 'text-white' : 'text-slate-900'}>{(activeCandle.volume / 1000000).toFixed(2)}M</strong></div>
             </div>
 
-            {/* SVG INTERACTIVE GRAPH WITH REAL TIME CROSSHAIR TRACKING */}
-            <div className="relative w-full h-[360px] bg-white border border-[#e0e3eb] rounded-xl overflow-hidden select-none">
+            {/* DYNAMIC SVG INTERACTIVE GRAPH WITH REAL TIME CROSSHAIR LINES */}
+            <div className={`relative w-full h-[380px] rounded-xl overflow-hidden select-none border ${isDark ? 'bg-[#0a0e17] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
               
-              {/* Subtle Horizontal & Vertical Price Grid */}
-              <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 opacity-30">
-                <div className="border-b border-dashed border-[#e0e3eb] w-full"></div>
-                <div className="border-b border-dashed border-[#e0e3eb] w-full"></div>
-                <div className="border-b border-dashed border-[#e0e3eb] w-full"></div>
-                <div className="border-b border-dashed border-[#e0e3eb] w-full"></div>
+              {/* Grid Lines */}
+              <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 opacity-25">
+                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
+                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
+                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
+                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
               </div>
 
-              {/* Price Scale Indicators */}
-              <div className="absolute top-2 right-2 text-[11px] font-num text-[#787b86] font-bold">
-                PKR {maxHigh.toFixed(2)}
+              {/* High/Low Watermarks */}
+              <div className="absolute top-2 right-3 text-[11px] font-num font-bold text-slate-400">
+                HIGH: PKR {maxHigh.toFixed(2)}
               </div>
-              <div className="absolute bottom-6 right-2 text-[11px] font-num text-[#787b86] font-bold">
-                PKR {minLow.toFixed(2)}
+              <div className="absolute bottom-7 right-3 text-[11px] font-num font-bold text-slate-400">
+                LOW: PKR {minLow.toFixed(2)}
               </div>
 
-              {/* Main SVG Area */}
               <svg
                 ref={svgRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 className="w-full h-full cursor-crosshair overflow-visible relative z-10"
               >
-                {/* Mode 1: TradingView Candlestick + Volume Profile */}
                 {chartMode === 'candles' ? (
                   <>
-                    {candleData.map((c, idx) => {
-                      const total = candleData.length;
+                    {candleHistory.map((c, idx) => {
+                      const total = candleHistory.length;
                       const x = (idx / total) * 1000 + 10;
                       const isUp = c.close >= c.open;
-                      const yClose = 280 - ((c.close - minLow) / priceRange) * 230;
-                      const yOpen = 280 - ((c.open - minLow) / priceRange) * 230;
-                      const yHigh = 280 - ((c.high - minLow) / priceRange) * 230;
-                      const yLow = 280 - ((c.low - minLow) / priceRange) * 230;
+                      const yClose = 290 - ((c.close - minLow) / priceRange) * 240;
+                      const yOpen = 290 - ((c.open - minLow) / priceRange) * 240;
+                      const yHigh = 290 - ((c.high - minLow) / priceRange) * 240;
+                      const yLow = 290 - ((c.low - minLow) / priceRange) * 240;
                       const bodyTop = Math.min(yOpen, yClose);
                       const bodyH = Math.max(3, Math.abs(yClose - yOpen));
-                      const volH = Math.min(45, (c.volume / 9000000) * 45);
+                      const volH = Math.min(48, (c.volume / 8500000) * 48);
 
                       return (
                         <g key={idx}>
-                          {/* Candle Wick */}
                           <line
                             x1={x}
                             y1={yHigh}
@@ -402,7 +522,6 @@ export default function TradingViewPortal() {
                             stroke={isUp ? '#089981' : '#f23645'}
                             strokeWidth="1.2"
                           />
-                          {/* Candle Body */}
                           <rect
                             x={x - 6}
                             y={bodyTop}
@@ -411,10 +530,9 @@ export default function TradingViewPortal() {
                             fill={isUp ? '#089981' : '#f23645'}
                             rx="1"
                           />
-                          {/* Volume Bar */}
                           <rect
                             x={x - 5}
-                            y={350 - volH}
+                            y={360 - volH}
                             width="10"
                             height={volH}
                             fill={isUp ? '#089981' : '#f23645'}
@@ -425,47 +543,44 @@ export default function TradingViewPortal() {
                     })}
                   </>
                 ) : (
-                  /* Mode 2: TradingView Line/Area Mode */
                   <>
                     <defs>
-                      <linearGradient id="tvGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#2962ff" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#2962ff" stopOpacity="0.0" />
+                      <linearGradient id="mainAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={currentAccent.line} stopOpacity="0.35" />
+                        <stop offset="100%" stopColor={currentAccent.line} stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
                     <polygon
-                      fill="url(#tvGradient)"
-                      points={`0,320 ${candleData.map((c, i) => `${(i / (candleData.length - 1)) * 1000},${280 - ((c.close - minLow) / priceRange) * 230}`).join(' ')} 1000,320`}
+                      fill="url(#mainAreaGrad)"
+                      points={`0,340 ${candleHistory.map((c, i) => `${(i / (candleHistory.length - 1)) * 1000},${290 - ((c.close - minLow) / priceRange) * 240}`).join(' ')} 1000,340`}
                     />
                     <polyline
                       fill="none"
-                      stroke="#2962ff"
+                      stroke={currentAccent.line}
                       strokeWidth="2.5"
-                      points={candleData.map((c, i) => `${(i / (candleData.length - 1)) * 1000},${280 - ((c.close - minLow) / priceRange) * 230}`).join(' ')}
+                      points={candleHistory.map((c, i) => `${(i / (candleHistory.length - 1)) * 1000},${290 - ((c.close - minLow) / priceRange) * 240}`).join(' ')}
                     />
                   </>
                 )}
 
-                {/* DYNAMIC TRADINGVIEW CROSSHAIR OVERLAY */}
+                {/* REAL CROSSHAIR LINES FOLLOWING MOUSE */}
                 {cursorPos && (
                   <g pointerEvents="none">
-                    {/* Vertical Crosshair Line */}
                     <line
                       x1={cursorPos.x}
                       y1="0"
                       x2={cursorPos.x}
-                      y2="360"
-                      stroke="#787b86"
+                      y2="380"
+                      stroke={isDark ? '#94a3b8' : '#787b86'}
                       strokeWidth="1"
                       strokeDasharray="4 4"
                     />
-                    {/* Horizontal Crosshair Line */}
                     <line
                       x1="0"
                       y1={cursorPos.y}
                       x2="100%"
                       y2={cursorPos.y}
-                      stroke="#787b86"
+                      stroke={isDark ? '#94a3b8' : '#787b86'}
                       strokeWidth="1"
                       strokeDasharray="4 4"
                     />
@@ -473,19 +588,17 @@ export default function TradingViewPortal() {
                 )}
               </svg>
 
-              {/* Crosshair Floating Axis Labels */}
+              {/* Dynamic Badges on Axes */}
               {cursorPos && (
                 <>
-                  {/* Right Price Badge */}
                   <div
-                    className="absolute right-0 bg-[#131722] text-white text-[10px] font-num px-2 py-0.5 rounded-l pointer-events-none z-30"
+                    className="absolute right-0 bg-slate-900 text-white text-[10px] font-num px-2 py-0.5 rounded-l pointer-events-none z-30"
                     style={{ top: `${cursorPos.y - 10}px` }}
                   >
-                    PKR {(maxHigh - (cursorPos.y / 360) * priceRange).toFixed(2)}
+                    PKR {(maxHigh - (cursorPos.y / 380) * priceRange).toFixed(2)}
                   </div>
-                  {/* Bottom Date Badge */}
                   <div
-                    className="absolute bottom-0 bg-[#131722] text-white text-[10px] font-num px-2 py-0.5 rounded-t pointer-events-none z-30 transform -translate-x-1/2"
+                    className="absolute bottom-0 bg-slate-900 text-white text-[10px] font-num px-2 py-0.5 rounded-t pointer-events-none z-30 transform -translate-x-1/2"
                     style={{ left: `${cursorPos.x}px` }}
                   >
                     {activeCandle.date}
@@ -493,230 +606,515 @@ export default function TradingViewPortal() {
                 </>
               )}
             </div>
+          </div>
 
-            {/* Bottom Intraday Stats */}
-            <div className="grid grid-cols-4 gap-3 pt-2 text-center font-num text-xs border-t border-[#f0f3fa]">
-              <div className="bg-[#f8fafd] p-2 rounded-lg border border-[#e0e3eb]">
-                <span className="text-[#787b86] text-[10px] block uppercase">P/E RATIO</span>
-                <span className="font-extrabold text-[#131722]">{selectedStock.pe}x</span>
+          {/* ================= RIGHT COLUMN: WATCHLIST & KEY STATS (Screenshot 2 exact replica) ================= */}
+          <div className={`lg:col-span-3 rounded-2xl border p-4 shadow-sm space-y-4 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            
+            {/* Watchlist Header */}
+            <div className="flex justify-between items-center border-b pb-2.5 border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-1.5 cursor-pointer">
+                <span className="font-extrabold text-sm">Watchlist</span>
+                <span className="text-xs text-slate-400">▾</span>
               </div>
-              <div className="bg-[#f8fafd] p-2 rounded-lg border border-[#e0e3eb]">
-                <span className="text-[#787b86] text-[10px] block uppercase">MARKET CAP</span>
-                <span className="font-extrabold text-[#131722]">PKR {selectedStock.mktCap}</span>
+              <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <span className="cursor-pointer hover:text-sky-500 font-bold">+</span>
+                <span className="cursor-pointer hover:text-sky-500">⛶</span>
+                <span className="cursor-pointer hover:text-sky-500">•••</span>
               </div>
-              <div className="bg-[#f8fafd] p-2 rounded-lg border border-[#e0e3eb]">
-                <span className="text-[#787b86] text-[10px] block uppercase">DIVIDEND YIELD</span>
-                <span className="font-extrabold text-[#089981]">{selectedStock.yield}</span>
+            </div>
+
+            {/* Watchlist Items */}
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 text-xs font-num">
+              
+              {/* Indices Group */}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">INDICES</span>
+                <div className="space-y-1">
+                  {WATCHLIST_INDICES.map((idx) => (
+                    <div key={idx.symbol} className="flex justify-between items-center py-1 px-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800/60 cursor-pointer">
+                      <span className="font-bold">{idx.symbol}</span>
+                      <div className="text-right">
+                        <span className="font-semibold block">{idx.last}</span>
+                        <span className={`text-[10px] font-bold ${idx.isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                          {idx.chg} ({idx.chgPct})
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="bg-[#f8fafd] p-2 rounded-lg border border-[#e0e3eb]">
-                <span className="text-[#787b86] text-[10px] block uppercase">AVG VOLUME</span>
-                <span className="font-extrabold text-[#131722]">{selectedStock.volume}</span>
+
+              {/* Equities Group */}
+              <div className="border-t pt-2 border-slate-200 dark:border-slate-800">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">STOCKS</span>
+                <div className="space-y-1">
+                  {PSX_UNIVERSE.slice(0, 4).map((stk) => (
+                    <div
+                      key={stk.symbol}
+                      onClick={() => setSelectedStock(stk)}
+                      className={`flex justify-between items-center py-1 px-1.5 rounded cursor-pointer ${selectedStock.symbol === stk.symbol ? 'bg-sky-50 dark:bg-sky-950/40 border border-sky-300 dark:border-sky-800' : 'hover:bg-slate-100 dark:hover:bg-slate-800/60'}`}
+                    >
+                      <span className="font-bold">{stk.symbol}</span>
+                      <div className="text-right">
+                        <span className="font-semibold block">PKR {stk.price.toFixed(1)}</span>
+                        <span className={`text-[10px] font-bold ${stk.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                          {stk.change >= 0 ? `+${stk.change}%` : `${stk.change}%`}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Commodities Group */}
+              <div className="border-t pt-2 border-slate-200 dark:border-slate-800">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">COMMODITIES & FOREX</span>
+                <div className="space-y-1">
+                  {WATCHLIST_FOREX_FUTURES.map((item) => (
+                    <div key={item.symbol} className="flex justify-between items-center py-1 px-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800/60 cursor-pointer">
+                      <span className="font-bold">{item.symbol}</span>
+                      <div className="text-right">
+                        <span className="font-semibold block">{item.last}</span>
+                        <span className={`text-[10px] font-bold ${item.isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                          {item.chgPct}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* KEY STATS BLOCK FOR SELECTED STOCK (Screenshot 2 bottom exact replica) */}
+            <div className={`border-t pt-3 space-y-2.5 ${isDark ? 'border-slate-800' : 'border-[#e0e3eb]'}`}>
+              <div>
+                <div className="flex justify-between items-center">
+                  <h3 className="font-black text-sm">{selectedStock.symbol}</h3>
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">{selectedStock.sector}</span>
+                </div>
+                <div className="flex items-baseline gap-2 font-num mt-0.5">
+                  <span className="text-xl font-black">PKR {selectedStock.price.toFixed(2)}</span>
+                  <span className={`text-xs font-bold ${selectedStock.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                    {selectedStock.change >= 0 ? `+${selectedStock.change}%` : `${selectedStock.change}%`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Volume Progress Bar */}
+              <div className="space-y-1 font-num text-[11px]">
+                <div className="flex justify-between text-slate-400 text-[10px]">
+                  <span>Volume: <strong className={isDark ? 'text-white' : 'text-slate-900'}>{selectedStock.volume}</strong></span>
+                  <span>Avg Vol: <strong className={isDark ? 'text-white' : 'text-slate-900'}>{selectedStock.avgVol}</strong></span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '68%' }}></div>
+                </div>
+              </div>
+
+              {/* Key Facts Callout */}
+              <div className="bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/60 p-2.5 rounded-xl text-[11px] leading-relaxed">
+                <span className="font-extrabold text-sky-700 dark:text-sky-300 block mb-1">✦ Key Facts</span>
+                {selectedStock.name} reported resilient operational earnings with sustained cash payouts. Market price trades comfortably within 52-week range ({selectedStock.range52}).
+              </div>
+
+              {/* Detailed Key Stats Table */}
+              <div className="space-y-1 text-xs font-num divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="flex justify-between py-1 text-slate-400">
+                  <span>Latest Earnings:</span>
+                  <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedStock.earnings}</span>
+                </div>
+                <div className="flex justify-between py-1 text-slate-400">
+                  <span>Market Cap:</span>
+                  <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>PKR {selectedStock.mktCap}</span>
+                </div>
+                <div className="flex justify-between py-1 text-slate-400">
+                  <span>Dividend Yield:</span>
+                  <span className="font-bold text-[#089981]">{selectedStock.yield}</span>
+                </div>
+                <div className="flex justify-between py-1 text-slate-400">
+                  <span>P/E Ratio (TTM):</span>
+                  <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedStock.pe}x</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* ROW 2: PAKISTAN MACRO 3-CARD SUMMARY (Screenshot 3 exact replica) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          {/* Card 1: Pakistan Equity Market Cap */}
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span> PSX Equity Market Cap
+              </span>
+              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold font-num">TOTAL</span>
+            </div>
+
+            <div className="flex items-baseline gap-2 font-num">
+              <span className="text-2xl sm:text-3xl font-black">PKR 14.85 Trillion</span>
+              <span className="text-xs font-bold text-[#089981]">+8.4% YTD</span>
+            </div>
+
+            <div className="space-y-1.5 pt-2">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Sector Market Dominance:</span>
+              <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full flex overflow-hidden">
+                <div className="h-full bg-sky-500" style={{ width: '38%' }} title="Energy 38%"></div>
+                <div className="h-full bg-emerald-500" style={{ width: '32%' }} title="Banking 32%"></div>
+                <div className="h-full bg-amber-500" style={{ width: '18%' }} title="Cement 18%"></div>
+                <div className="h-full bg-slate-400" style={{ width: '12%' }} title="Others 12%"></div>
+              </div>
+              <div className="flex justify-between text-[10px] font-num text-slate-400 pt-1">
+                <span>Energy: 38%</span>
+                <span>Banks: 32%</span>
+                <span>Cement: 18%</span>
+                <span>Others: 12%</span>
               </div>
             </div>
           </div>
 
-          {/* Major Indices Side Panel (4 Cols - Exact TradingView Right Card) */}
-          <div className="lg:col-span-4 bg-white border border-[#e0e3eb] rounded-2xl p-5 shadow-sm space-y-3">
-            <div className="flex justify-between items-center border-b border-[#f0f3fa] pb-3">
-              <h2 className="text-base font-extrabold text-[#131722]">Major indices</h2>
-              <span className="text-xs text-[#2962ff] font-bold cursor-pointer hover:underline">See all indices ›</span>
+          {/* Card 2: PKR Dollar Index & Bullion */}
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#089981]"></span> PKR Forex & Bullion Desk
+              </span>
+              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold font-num">SPOT</span>
             </div>
 
-            <div className="space-y-2">
-              {MAJOR_INDICES.map((idx, i) => (
-                <div
-                  key={idx.symbol}
-                  className="p-3 rounded-xl border border-[#e0e3eb] hover:bg-[#f8fafd] transition cursor-pointer flex justify-between items-center group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#f0f3fa] flex items-center justify-center font-extrabold text-xs text-[#131722] font-num">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-xs text-[#131722] group-hover:text-[#2962ff] transition block">
-                        {idx.symbol}
-                      </span>
-                      <span className="text-[10px] text-[#787b86]">{idx.name}</span>
-                    </div>
-                  </div>
+            <div className="flex items-baseline gap-2 font-num">
+              <span className="text-2xl sm:text-3xl font-black">278.45 USD/PKR</span>
+              <span className="text-xs font-bold text-[#f23645]">-0.05%</span>
+            </div>
 
-                  <div className="text-right font-num">
-                    <span className="text-xs font-bold text-[#131722] block">{idx.value}</span>
-                    <span className={`text-[11px] font-bold ${idx.isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
-                      {idx.percent}
+            <div className="space-y-1.5 text-xs font-num divide-y divide-slate-100 dark:divide-slate-800 pt-1">
+              <div className="flex justify-between py-1 text-slate-400">
+                <span>Gold 24K (Per Tola):</span>
+                <span className="font-bold text-amber-500">PKR 284,500</span>
+              </div>
+              <div className="flex justify-between py-1 text-slate-400">
+                <span>Silver 24K (Per Tola):</span>
+                <span className="font-bold">PKR 3,350</span>
+              </div>
+              <div className="flex justify-between py-1 text-slate-400">
+                <span>Crude Oil (Brent):</span>
+                <span className="font-bold">$74.20/bbl</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: 10Y Yield & Pakistan Inflation */}
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 10Y PIB Yield & Inflation
+              </span>
+              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold font-num">MACRO</span>
+            </div>
+
+            <div className="flex items-baseline gap-2 font-num">
+              <span className="text-2xl sm:text-3xl font-black">13.80% PIB</span>
+              <span className="text-xs font-bold text-[#089981]">-180 bps</span>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Monthly Inflation Trend (CPI %):</span>
+              <div className="flex items-end justify-between h-10 gap-1 pt-1">
+                {[12.5, 11.8, 9.6, 9.2, 7.8, 7.2, 6.9].map((val, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full bg-sky-500 rounded-t" style={{ height: `${(val / 14) * 32}px` }}></div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between text-[9px] font-num text-slate-400">
+                <span>May</span>
+                <span>Jul</span>
+                <span>Sep</span>
+                <span>Oct</span>
+                <span>Nov 2026</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ROW 3: FEATURED IPOS & IPO CALENDAR (Screenshot 4 exact replica) */}
+        <div className={`rounded-2xl border p-5 shadow-sm space-y-4 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+          <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-800">
+            <div>
+              <h2 className="text-lg font-black flex items-center gap-2">
+                Featured IPOs & Listings <span className="text-slate-400 text-sm font-normal">›</span>
+              </h2>
+              <p className="text-xs text-slate-400">Upcoming and recently concluded Pakistan Stock Exchange primary offerings</p>
+            </div>
+            <span className="text-xs text-sky-600 dark:text-sky-400 font-bold cursor-pointer hover:underline">
+              See more IPO events ›
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {FEATURED_IPOS.map((ipo) => (
+              <div
+                key={ipo.symbol}
+                className={`p-3.5 rounded-xl border transition cursor-pointer hover:shadow-md ${isDark ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700' : 'bg-[#f8fafd] border-slate-200 hover:bg-white'}`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-md bg-slate-900 text-white font-black text-xs flex items-center justify-center font-num">
+                    {ipo.symbol}
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-xs block truncate">{ipo.name}</span>
+                    <span className="text-[10px] text-slate-400 font-num">{ipo.exchange}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 text-xs font-num pt-1 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex justify-between text-slate-400 text-[10px]">
+                    <span>Issue Size:</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{ipo.valuation}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400 text-[10px]">
+                    <span>Status:</span>
+                    <span className="font-bold text-sky-600 dark:text-sky-400">{ipo.status}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ROW 4: 4-GRID MARKET MOVERS (Screenshot 5 exact replica) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          {/* 1. Highest Volume Stocks */}
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-2 border-slate-200 dark:border-slate-800">
+              <h3 className="font-extrabold text-xs uppercase tracking-wider">Highest Volume Stocks</h3>
+              <span className="text-[10px] text-slate-400">Regular hours</span>
+            </div>
+            <div className="space-y-2 text-xs font-num">
+              {volumeLeaders.map((s) => (
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className="flex justify-between items-center py-1 hover:bg-slate-100 dark:hover:bg-slate-800 px-1.5 rounded cursor-pointer">
+                  <div>
+                    <span className="font-extrabold block">{s.symbol}</span>
+                    <span className="text-[10px] text-slate-400">{s.volume} Shares</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold block">PKR {s.price.toFixed(1)}</span>
+                    <span className={`text-[10px] font-bold ${s.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                      {s.change >= 0 ? `+${s.change}%` : `${s.change}%`}
                     </span>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Quick Switch to Stocks Screener */}
-            <div className="pt-2">
+          {/* 2. Most Volatile Stocks */}
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-2 border-slate-200 dark:border-slate-800">
+              <h3 className="font-extrabold text-xs uppercase tracking-wider">Most Volatile Stocks</h3>
+              <span className="text-[10px] text-slate-400">Intraday Swings</span>
+            </div>
+            <div className="space-y-2 text-xs font-num">
+              {mostVolatile.map((s) => (
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className="flex justify-between items-center py-1 hover:bg-slate-100 dark:hover:bg-slate-800 px-1.5 rounded cursor-pointer">
+                  <div>
+                    <span className="font-extrabold block">{s.symbol}</span>
+                    <span className="text-[10px] text-slate-400">{s.sector}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold block">PKR {s.price.toFixed(1)}</span>
+                    <span className="text-[10px] font-bold text-amber-500 font-num">±{Math.abs(s.change)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Top Gainers */}
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-2 border-slate-200 dark:border-slate-800">
+              <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#089981]">Top Gainers</h3>
+              <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded font-bold">▲ Bulls</span>
+            </div>
+            <div className="space-y-2 text-xs font-num">
+              {topGainers.map((s) => (
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className="flex justify-between items-center py-1 hover:bg-slate-100 dark:hover:bg-slate-800 px-1.5 rounded cursor-pointer">
+                  <div>
+                    <span className="font-extrabold block">{s.symbol}</span>
+                    <span className="text-[10px] text-slate-400 truncate max-w-[90px] block">{s.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold block">PKR {s.price.toFixed(1)}</span>
+                    <span className="text-[10px] font-bold text-[#089981]">+{s.change}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Top Losers */}
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-2 border-slate-200 dark:border-slate-800">
+              <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#f23645]">Top Losers</h3>
+              <span className="text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 rounded font-bold">▼ Dips</span>
+            </div>
+            <div className="space-y-2 text-xs font-num">
+              {topLosers.map((s) => (
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className="flex justify-between items-center py-1 hover:bg-slate-100 dark:hover:bg-slate-800 px-1.5 rounded cursor-pointer">
+                  <div>
+                    <span className="font-extrabold block">{s.symbol}</span>
+                    <span className="text-[10px] text-slate-400 truncate max-w-[90px] block">{s.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold block">PKR {s.price.toFixed(1)}</span>
+                    <span className="text-[10px] font-bold text-[#f23645]">{s.change}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* ROW 5: ORGANIZED & COMPACT PSX EQUITIES SCREENER (Filter by Gainers, Losers, Volume, Price) */}
+        <div className={`rounded-2xl border p-5 shadow-sm space-y-4 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
+            <div>
+              <h2 className="text-xl font-black flex items-center gap-2">
+                PSX Screener & Filter Engine <span className="text-slate-400 text-sm font-normal">›</span>
+              </h2>
+              <p className="text-xs text-slate-400">Search and sort 50+ equities with customizable filters and quick averaging</p>
+            </div>
+
+            {/* Filter Pills: Gainers, Losers, Volume, Price High/Low */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold font-num">
               <button
-                onClick={() => setShowAveragingModal(true)}
-                className="w-full bg-[#131722] hover:bg-black text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-sm font-num"
+                onClick={() => setScreenerTab('all')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'all' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
               >
-                <span>⚡</span> Open Smart Cost-Averaging Desk
+                All (50+)
+              </button>
+              <button
+                onClick={() => setScreenerTab('gainers')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'gainers' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                ▲ Gainers
+              </button>
+              <button
+                onClick={() => setScreenerTab('losers')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'losers' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                ▼ Losers
+              </button>
+              <button
+                onClick={() => setScreenerTab('volume')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'volume' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                📊 High Volume
+              </button>
+              <button
+                onClick={() => setScreenerTab('priceLow')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'priceLow' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                Price: Low to High
+              </button>
+              <button
+                onClick={() => setScreenerTab('priceHigh')}
+                className={`px-3 py-1 rounded-lg transition ${screenerTab === 'priceHigh' ? currentAccent.activeTab : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >
+                Price: High to Low
               </button>
             </div>
           </div>
 
-        </div>
-
-        {/* 3. FOUR MACRO PILLARS (Exact TradingView Sub-cards: Crypto/Forex/Gold/Inflation) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          {/* Card 1: Forex USD/PKR */}
-          <div className="bg-white border border-[#e0e3eb] rounded-2xl p-4 shadow-sm hover:border-[#2962ff] transition cursor-pointer">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-[#787b86] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#089981]"></span> USD / PKR (Interbank)
-              </span>
-              <span className="text-[10px] bg-[#f0f3fa] text-[#787b86] px-1.5 py-0.5 rounded font-bold font-num">FOREX</span>
-            </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black font-num text-[#131722]">278.45</span>
-              <span className="text-xs font-bold text-[#f23645] font-num">-0.05%</span>
-            </div>
-            <p className="text-[11px] text-[#787b86] mt-1">Open Market: 280.20 PKR • SBP Forex Reserves $11.2B</p>
-          </div>
-
-          {/* Card 2: Gold 24K per Tola */}
-          <div className="bg-white border border-[#e0e3eb] rounded-2xl p-4 shadow-sm hover:border-[#2962ff] transition cursor-pointer">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-[#787b86] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span> Gold (24K / Tola)
-              </span>
-              <span className="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-bold font-num">SARAFA</span>
-            </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black font-num text-[#131722]">PKR 284,500</span>
-              <span className="text-xs font-bold text-[#089981] font-num">+0.78%</span>
-            </div>
-            <p className="text-[11px] text-[#787b86] mt-1">10 Grams: PKR 243,912 • Silver: PKR 3,350/Tola</p>
-          </div>
-
-          {/* Card 3: SBP Policy Rate */}
-          <div className="bg-white border border-[#e0e3eb] rounded-2xl p-4 shadow-sm hover:border-[#2962ff] transition cursor-pointer">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-[#787b86] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#2962ff]"></span> SBP Target Policy Rate
-              </span>
-              <span className="text-[10px] bg-[#f0f3fa] text-[#787b86] px-1.5 py-0.5 rounded font-bold font-num">CENTRAL BANK</span>
-            </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black font-num text-[#131722]">15.00%</span>
-              <span className="text-xs font-bold text-[#787b86] font-num">Monetary Yield</span>
-            </div>
-            <p className="text-[11px] text-[#787b86] mt-1">Next MPC Review: Scheduled Q2 • Yield Curve Easing</p>
-          </div>
-
-          {/* Card 4: Brent Crude Oil */}
-          <div className="bg-white border border-[#e0e3eb] rounded-2xl p-4 shadow-sm hover:border-[#2962ff] transition cursor-pointer">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-[#787b86] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-slate-700"></span> Crude Oil (Brent)
-              </span>
-              <span className="text-[10px] bg-[#f0f3fa] text-[#787b86] px-1.5 py-0.5 rounded font-bold font-num">ENERGY</span>
-            </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black font-num text-[#131722]">$74.20 <span className="text-xs font-normal">/bbl</span></span>
-              <span className="text-xs font-bold text-[#f23645] font-num">-0.87%</span>
-            </div>
-            <p className="text-[11px] text-[#787b86] mt-1">Directly impacts OGDC, PPL, and PSO pricing dynamics</p>
-          </div>
-
-        </div>
-
-        {/* 4. PSX STOCKS SCREENER & DIRECTORY TABLE (TradingView Equities Screener) */}
-        <div className="bg-white border border-[#e0e3eb] rounded-2xl p-6 shadow-sm space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#f0f3fa] pb-4">
-            <div>
-              <h2 className="text-xl font-black text-[#131722] flex items-center gap-2">
-                PSX Equities & Screener <span className="text-[#787b86] text-sm font-normal">›</span>
-              </h2>
-              <p className="text-xs text-[#787b86]">Search 50+ Top Traded Stocks across Karachi Stock Exchange</p>
-            </div>
-
-            {/* Filter Controls */}
-            <div className="flex flex-wrap items-center gap-2.5">
+          {/* Secondary Controls: Search, Sector, Shariah */}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <input
                 type="text"
-                placeholder="Search symbol (e.g. MEBL, SYS, PRL)..."
+                placeholder="Search symbol or name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-[#f8fafd] border border-[#e0e3eb] rounded-xl px-3 py-1.5 text-xs text-[#131722] outline-none focus:border-[#2962ff] w-56 font-medium"
+                className={`border rounded-lg px-3 py-1.5 text-xs outline-none focus:border-sky-500 w-52 ${isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}
               />
-
               <select
-                value={sectorFilter}
-                onChange={(e) => setSectorFilter(e.target.value)}
-                className="bg-[#f8fafd] border border-[#e0e3eb] text-xs font-bold text-[#131722] rounded-xl px-3 py-1.5 outline-none"
+                value={selectedSector}
+                onChange={(e) => setSelectedSector(e.target.value)}
+                className={`border rounded-lg px-3 py-1.5 text-xs font-bold outline-none ${isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300'}`}
               >
                 {sectors.map((sec) => (
                   <option key={sec} value={sec}>{sec}</option>
                 ))}
               </select>
-
               <button
-                onClick={() => setShariahOnly(!shariahOnly)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${shariahOnly ? 'bg-[#089981] text-white border-[#089981]' : 'bg-[#f8fafd] text-[#787b86] border-[#e0e3eb]'}`}
+                onClick={() => setShariahFilter(!shariahFilter)}
+                className={`px-3 py-1.5 rounded-lg border font-bold transition ${shariahFilter ? 'bg-emerald-600 text-white border-emerald-600' : isDark ? 'bg-slate-900 border-slate-700 text-slate-400' : 'bg-slate-50 border-slate-300 text-slate-700'}`}
               >
                 KMI Shariah Only
               </button>
             </div>
+
+            <span className="text-slate-400 font-num">
+              Showing {currentStocksPage.length} of {processedStocks.length} equities
+            </span>
           </div>
 
-          {/* Stocks Grid Table */}
+          {/* Compact Clean Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-num">
               <thead>
-                <tr className="border-b border-[#e0e3eb] text-[#787b86] uppercase font-bold text-[10px]">
-                  <th className="py-2.5 px-3">Symbol</th>
-                  <th className="py-2.5 px-3">Company Name</th>
-                  <th className="py-2.5 px-3">Sector</th>
-                  <th className="py-2.5 px-3 text-right">Price (PKR)</th>
-                  <th className="py-2.5 px-3 text-right">Change %</th>
-                  <th className="py-2.5 px-3 text-right">Volume</th>
-                  <th className="py-2.5 px-3 text-right">P/E Ratio</th>
-                  <th className="py-2.5 px-3 text-right">Dividend Yield</th>
-                  <th className="py-2.5 px-3 text-center">Action</th>
+                <tr className={`border-b text-[10px] uppercase font-bold text-slate-400 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <th className="py-2 px-3">Symbol</th>
+                  <th className="py-2 px-3">Company</th>
+                  <th className="py-2 px-3">Sector</th>
+                  <th className="py-2 px-3 text-right">Price (PKR)</th>
+                  <th className="py-2 px-3 text-right">Change %</th>
+                  <th className="py-2 px-3 text-right">Volume</th>
+                  <th className="py-2 px-3 text-right">P/E</th>
+                  <th className="py-2 px-3 text-right">Dividend Yield</th>
+                  <th className="py-2 px-3 text-center">Desk Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f0f3fa]">
-                {filteredList.map((stk) => {
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-100'}`}>
+                {currentStocksPage.map((stk) => {
                   const isUp = stk.change >= 0;
                   const isSelected = stk.symbol === selectedStock.symbol;
-
                   return (
                     <tr
                       key={stk.symbol}
                       onClick={() => setSelectedStock(stk)}
-                      className={`hover:bg-[#f8fafd] transition cursor-pointer ${isSelected ? 'bg-[#f0f3fa]' : ''}`}
+                      className={`hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition cursor-pointer ${isSelected ? 'bg-sky-50/60 dark:bg-sky-950/30' : ''}`}
                     >
-                      <td className="py-3 px-3 font-extrabold text-[#131722] flex items-center gap-1.5">
+                      <td className="py-2.5 px-3 font-extrabold flex items-center gap-1.5">
                         {stk.symbol}
-                        {stk.shariah && <span className="text-[9px] bg-[#089981]/15 text-[#089981] px-1 rounded font-bold">KMI</span>}
+                        {stk.shariah && <span className="text-[9px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1 rounded font-bold">KMI</span>}
                       </td>
-                      <td className="py-3 px-3 font-sans font-medium text-[#787b86]">{stk.name}</td>
-                      <td className="py-3 px-3 font-sans text-[#787b86]">{stk.sector}</td>
-                      <td className="py-3 px-3 text-right font-black text-[#131722]">PKR {stk.price.toFixed(2)}</td>
-                      <td className={`py-3 px-3 text-right font-bold ${isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                      <td className="py-2.5 px-3 font-sans text-slate-400 truncate max-w-[150px]">{stk.name}</td>
+                      <td className="py-2.5 px-3 font-sans text-slate-400">{stk.sector}</td>
+                      <td className="py-2.5 px-3 text-right font-black">PKR {stk.price.toFixed(2)}</td>
+                      <td className={`py-2.5 px-3 text-right font-bold ${isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                         {isUp ? `+${stk.change.toFixed(2)}%` : `${stk.change.toFixed(2)}%`}
                       </td>
-                      <td className="py-3 px-3 text-right text-[#131722]">{stk.volume}</td>
-                      <td className="py-3 px-3 text-right text-[#787b86]">{stk.pe}x</td>
-                      <td className="py-3 px-3 text-right font-bold text-[#089981]">{stk.yield}</td>
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-2.5 px-3 text-right font-medium">{stk.volume}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-400">{stk.pe}x</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-[#089981]">{stk.yield}</td>
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedStock(stk);
                             setShowAveragingModal(true);
                           }}
-                          className="bg-[#131722] hover:bg-[#2962ff] text-white px-2.5 py-1 rounded text-[10px] font-bold transition font-num"
+                          className={`${currentAccent.btn} px-2.5 py-1 rounded text-[10px] font-bold transition font-num`}
                         >
-                          Average
+                          Average Desk
                         </button>
                       </td>
                     </tr>
@@ -725,170 +1123,177 @@ export default function TradingViewPortal() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center pt-2 text-xs font-num border-t border-slate-200 dark:border-slate-800">
+              <span className="text-slate-400">Page {tablePage} of {totalPages}</span>
+              <div className="flex gap-1.5">
+                <button
+                  disabled={tablePage === 1}
+                  onClick={() => setTablePage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1 rounded border disabled:opacity-40 border-slate-300 dark:border-slate-700 font-bold"
+                >
+                  Previous
+                </button>
+                <button
+                  disabled={tablePage === totalPages}
+                  onClick={() => setTablePage((p) => Math.min(totalPages, p + 1))}
+                  className="px-3 py-1 rounded border disabled:opacity-40 border-slate-300 dark:border-slate-700 font-bold"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* 5. COMMUNITY IDEAS (Exact TradingView Community Ideas Grid) */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-black text-[#131722] flex items-center gap-2">
-                Community ideas <span className="text-[#787b86] text-xl font-normal">›</span>
-              </h2>
-              <p className="text-xs text-[#787b86]">Chart analysis, Breakouts & Swing Setups by Top Pakistani CMT Analysts</p>
+        {/* ROW 6: PAKISTAN BREAKING NEWS & INFLUENCER / ANALYST TIPS */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          
+          {/* Breaking News Feed (8 Cols) */}
+          <div className={`lg:col-span-8 rounded-2xl border p-5 shadow-sm space-y-4 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-800">
+              <div>
+                <h3 className="text-base font-black flex items-center gap-2">
+                  <span>📰</span> Market News & Regulatory Filings
+                </h3>
+                <p className="text-xs text-slate-400">Macro updates, SBP releases, and earnings affecting PSX stock valuations</p>
+              </div>
+              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md font-num font-bold">
+                Live Feed
+              </span>
             </div>
-            <span className="text-xs text-[#2962ff] font-bold cursor-pointer hover:underline">See all ideas ›</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {MARKET_NEWS_FEED.map((n) => (
+                <div key={n.id} className={`p-3 rounded-xl border flex gap-3 hover:shadow-md transition ${isDark ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700' : 'bg-[#f8fafd] border-slate-200 hover:bg-white'}`}>
+                  <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-slate-200">
+                    <img src={n.image} alt={n.tag} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex flex-col justify-between space-y-1">
+                    <span className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">
+                      {n.tag} • <span className="text-slate-400">{n.time}</span>
+                    </span>
+                    <h4 className="text-xs font-bold leading-snug line-clamp-2 hover:text-sky-500 cursor-pointer">
+                      {n.headline}
+                    </h4>
+                    <span className="text-[10px] text-slate-400 font-num">{n.impact}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {COMMUNITY_IDEAS.map((idea) => (
-              <div
-                key={idea.id}
-                className="bg-white border border-[#e0e3eb] rounded-2xl overflow-hidden shadow-sm hover:border-[#2962ff] transition flex flex-col justify-between"
-              >
-                <div>
-                  {/* Chart Thumbnail */}
-                  <div className="h-40 w-full overflow-hidden bg-[#f0f3fa] relative">
-                    <img src={idea.image} alt={idea.title} className="w-full h-full object-cover hover:scale-105 transition duration-300" />
-                    <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold font-num text-[#131722] border border-[#e0e3eb]">
-                      {idea.symbol} • {idea.type}
+          {/* Influencer & Market Analyst Tips (4 Cols) */}
+          <div className={`lg:col-span-4 rounded-2xl border p-5 shadow-sm space-y-3.5 ${isDark ? 'bg-[#0f1422] border-slate-800' : 'bg-white border-[#e0e3eb]'}`}>
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-800">
+              <div>
+                <h3 className="text-base font-black flex items-center gap-1.5">
+                  <span>💡</span> Analyst & Influencer Calls
+                </h3>
+                <p className="text-xs text-slate-400">Actionable advice & targets from verified PSX strategists</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {INFLUENCER_TIPS.map((tip, i) => (
+                <div key={i} className={`p-3 rounded-xl border space-y-1.5 ${isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-[#f8fafd] border-slate-200'}`}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="font-extrabold text-xs block">{tip.name}</span>
+                      <span className="text-[10px] text-slate-400">{tip.handle}</span>
+                    </div>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-bold font-num">
+                      {tip.call}
                     </span>
                   </div>
-
-                  {/* Body Content */}
-                  <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <img src={idea.avatar} alt={idea.author} className="w-6 h-6 rounded-full object-cover border border-[#e0e3eb]" />
-                      <span className="text-xs font-bold text-[#131722] truncate">{idea.author}</span>
-                      <span className="text-[10px] text-[#787b86] font-num">• {idea.time}</span>
-                    </div>
-
-                    <h3 className="text-xs font-extrabold text-[#131722] leading-snug line-clamp-2">
-                      {idea.title}
-                    </h3>
-
-                    <p className="text-[11px] text-[#787b86] line-clamp-2">
-                      {idea.desc}
-                    </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{tip.tip}</p>
+                  <div className="text-[10px] text-slate-400 font-num">
+                    Historical Accuracy: <strong className="text-sky-500">{tip.accuracy}</strong>
                   </div>
                 </div>
-
-                <div className="p-4 pt-0 border-t border-[#f0f3fa] flex justify-between items-center text-xs text-[#787b86] font-num">
-                  <span className="font-bold text-[#089981]">Target: {idea.target}</span>
-                  <div className="flex items-center gap-3">
-                    <span>❤️ {idea.likes}</span>
-                    <span>💬 {idea.comments}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 6. SUPPORTED PAKISTANI BROKERS (Trading & Brokers Integration) */}
-        <div className="bg-white border border-[#e0e3eb] rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="flex justify-between items-center border-b border-[#f0f3fa] pb-3">
-            <div>
-              <h2 className="text-xl font-black text-[#131722]">Trading & brokers in Pakistan</h2>
-              <p className="text-xs text-[#787b86]">Direct execution verified brokers for Pakistan Stock Exchange</p>
+              ))}
             </div>
-            <span className="text-xs text-[#2962ff] font-bold cursor-pointer hover:underline">All brokers ›</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { name: 'KTrade Securities', rating: '4.8 ★★★★★', tag: 'Fast Execution' },
-              { name: 'Finqalab', rating: '4.7 ★★★★★', tag: 'Mobile First' },
-              { name: 'Arif Habib Ltd', rating: '4.9 ★★★★★', tag: 'Institutional' },
-              { name: 'AKD Securities', rating: '4.6 ★★★★☆', tag: 'Research Alpha' },
-              { name: 'BMA Capital', rating: '4.7 ★★★★★', tag: 'Corporate' },
-              { name: 'JS Global', rating: '4.8 ★★★★★', tag: 'Direct Market' },
-            ].map((br) => (
-              <div key={br.name} className="p-3.5 rounded-xl border border-[#e0e3eb] bg-[#f8fafd] hover:bg-white transition text-center space-y-1">
-                <span className="font-black text-xs text-[#131722] block">{br.name}</span>
-                <span className="text-[10px] text-[#089981] font-bold block">{br.rating}</span>
-                <span className="text-[9px] text-[#787b86] bg-white border border-[#e0e3eb] px-1.5 py-0.5 rounded inline-block font-medium">
-                  {br.tag}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
       </div>
 
-      {/* 7. DEDICATED SMART COST-AVERAGING MODAL / DOCK (Aapka Main Client Feature) */}
+      {/* 4. DEDICATED SMART COST-AVERAGING MODAL / DOCK (Aapka Main Client Feature) */}
       {showAveragingModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#e0e3eb] shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className={`rounded-2xl border shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 ${isDark ? 'bg-[#0f1422] border-slate-800 text-white' : 'bg-white border-[#e0e3eb] text-[#131722]'}`}>
             
-            <div className="flex justify-between items-center border-b border-[#f0f3fa] pb-3">
+            <div className="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#089981] text-white flex items-center justify-center font-black text-sm">
+                <div className="w-8 h-8 rounded-lg bg-sky-500 text-white flex items-center justify-center font-black text-sm">
                   ⚡
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-[#131722]">Smart Cost-Averaging Desk</h3>
-                  <p className="text-xs text-[#787b86]">Live PSX Price Average Down Calculator</p>
+                  <h3 className="text-base font-black">Smart Cost-Averaging Desk</h3>
+                  <p className="text-xs text-slate-400">Live PSX Price Down/Up Averaging Engine</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAveragingModal(false)}
-                className="w-8 h-8 rounded-full bg-[#f0f3fa] hover:bg-[#e0e3eb] text-sm font-bold flex items-center justify-center transition"
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-bold flex items-center justify-center transition"
               >
                 ✕
               </button>
             </div>
 
             {/* Selected Asset Header */}
-            <div className="bg-[#f8fafd] border border-[#e0e3eb] p-3 rounded-xl flex justify-between items-center font-num">
+            <div className={`p-3 rounded-xl border flex justify-between items-center font-num ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
               <div>
-                <span className="text-xs font-bold text-[#131722]">{selectedStock.symbol} — {selectedStock.name}</span>
-                <span className="text-[10px] text-[#787b86] block">PSX Market Execution</span>
+                <span className="text-xs font-bold block">{selectedStock.symbol} — {selectedStock.name}</span>
+                <span className="text-[10px] text-slate-400">Execution on Pakistan Stock Exchange</span>
               </div>
               <div className="text-right">
-                <span className="text-xs text-[#787b86] block">Current Live Price</span>
-                <span className="text-base font-black text-[#089981]">PKR {selectedStock.price.toFixed(2)}</span>
+                <span className="text-xs text-slate-400 block">Live Rate</span>
+                <span className="text-base font-black text-sky-500">PKR {selectedStock.price.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Inputs */}
             <div className="space-y-3">
               <div>
-                <span className="text-xs font-bold text-[#131722] block uppercase tracking-wide">1. Existing Holding</span>
+                <span className="text-xs font-bold block uppercase tracking-wide">1. Existing Holding</span>
                 <div className="grid grid-cols-2 gap-3 mt-1 font-num">
                   <div>
-                    <label className="text-[10px] text-[#787b86]">Shares Count</label>
+                    <label className="text-[10px] text-slate-400">Shares Count</label>
                     <input
                       type="number"
                       value={holdingQty}
                       onChange={(e) => setHoldingQty(e.target.value)}
-                      className="w-full bg-[#f8fafd] border border-[#e0e3eb] rounded-lg p-2 text-xs font-bold text-[#131722] outline-none focus:border-[#2962ff]"
+                      className={`w-full border rounded-lg p-2 text-xs font-bold outline-none focus:border-sky-500 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-300'}`}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-[#787b86]">Avg Purchase Price (PKR)</label>
+                    <label className="text-[10px] text-slate-400">Avg Purchase Price (PKR)</label>
                     <input
                       type="number"
                       value={holdingPrice}
                       onChange={(e) => setHoldingPrice(e.target.value)}
-                      className="w-full bg-[#f8fafd] border border-[#e0e3eb] rounded-lg p-2 text-xs font-bold text-[#131722] outline-none focus:border-[#2962ff]"
+                      className={`w-full border rounded-lg p-2 text-xs font-bold outline-none focus:border-sky-500 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-300'}`}
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs font-bold text-[#131722] block uppercase tracking-wide">2. Planned Order</span>
-                <div className="grid grid-cols-2 gap-2 mt-1 bg-[#f0f3fa] p-1 rounded-lg text-xs font-bold">
+                <span className="text-xs font-bold block uppercase tracking-wide">2. Planned Order</span>
+                <div className={`grid grid-cols-2 gap-2 mt-1 p-1 rounded-lg text-xs font-bold ${isDark ? 'bg-slate-900' : 'bg-slate-100'}`}>
                   <button
                     onClick={() => setOrderType('market')}
-                    className={`py-1.5 rounded transition ${orderType === 'market' ? 'bg-white text-[#131722] shadow-sm' : 'text-[#787b86]'}`}
+                    className={`py-1.5 rounded transition ${orderType === 'market' ? currentAccent.activeTab : 'text-slate-400'}`}
                   >
                     ⚡ Market (PKR {selectedStock.price.toFixed(2)})
                   </button>
                   <button
                     onClick={() => setOrderType('limit')}
-                    className={`py-1.5 rounded transition ${orderType === 'limit' ? 'bg-white text-[#131722] shadow-sm' : 'text-[#787b86]'}`}
+                    className={`py-1.5 rounded transition ${orderType === 'limit' ? currentAccent.activeTab : 'text-slate-400'}`}
                   >
                     🎯 Limit Bid
                   </button>
@@ -896,55 +1301,55 @@ export default function TradingViewPortal() {
               </div>
 
               {orderType === 'limit' && (
-                <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg font-num">
-                  <label className="text-[10px] font-bold text-amber-800 uppercase block">Your Limit Target Price (PKR)</label>
+                <div className="bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 p-2.5 rounded-lg font-num">
+                  <label className="text-[10px] font-bold text-sky-700 dark:text-sky-300 uppercase block">Your Target Limit Price (PKR)</label>
                   <input
                     type="number"
                     value={limitBid}
                     onChange={(e) => setLimitBid(e.target.value)}
-                    className="w-full bg-white border border-amber-300 rounded p-1.5 mt-0.5 text-xs font-bold text-[#131722] outline-none"
+                    className={`w-full border rounded p-1.5 mt-0.5 text-xs font-bold outline-none ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-300'}`}
                   />
                 </div>
               )}
 
               <div className="font-num">
-                <span className="text-xs font-bold text-[#131722] block uppercase tracking-wide">3. New Shares to Buy</span>
+                <span className="text-xs font-bold block uppercase tracking-wide">3. New Shares to Buy</span>
                 <input
                   type="number"
                   value={orderShares}
                   onChange={(e) => setOrderShares(e.target.value)}
-                  className="w-full bg-[#f8fafd] border border-[#e0e3eb] rounded-lg p-2 mt-1 text-xs font-bold text-[#131722] outline-none focus:border-[#2962ff]"
+                  className={`w-full border rounded-lg p-2 mt-1 text-xs font-bold outline-none focus:border-sky-500 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-300'}`}
                 />
               </div>
 
-              <div className="flex items-center justify-between bg-[#f8fafd] p-2.5 rounded-lg border border-[#e0e3eb]">
+              <div className={`flex items-center justify-between p-2.5 rounded-lg border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
-                  <span className="text-xs font-bold text-[#131722] block">Include PSX Charges (+0.18%)</span>
-                  <span className="text-[10px] text-[#787b86]">CDC, SECP, CVT & Broker Commission</span>
+                  <span className="text-xs font-bold block">Apply PSX Charges (+0.18%)</span>
+                  <span className="text-[10px] text-slate-400">CDC, SECP, CVT & Broker Commission</span>
                 </div>
                 <input
                   type="checkbox"
                   checked={includeFees}
                   onChange={(e) => setIncludeFees(e.target.checked)}
-                  className="w-4 h-4 accent-[#089981] cursor-pointer"
+                  className="w-4 h-4 accent-sky-500 cursor-pointer"
                 />
               </div>
             </div>
 
-            {/* Output Calculation Result */}
-            <div className="bg-[#f0f3fa] border border-[#e0e3eb] rounded-xl p-4 space-y-2 text-xs font-num">
-              <div className="flex justify-between text-[#787b86]">
+            {/* Resulting Average Cost Output */}
+            <div className={`border rounded-xl p-4 space-y-2 text-xs font-num ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <div className="flex justify-between text-slate-400">
                 <span>Total Capital Required:</span>
-                <span className="font-bold text-[#131722]">PKR {capitalReq.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>PKR {capitalReq.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between text-[#787b86]">
-                <span>Total Portfolio Shares:</span>
-                <span className="font-bold text-[#131722]">{finalQty} shares</span>
+              <div className="flex justify-between text-slate-400">
+                <span>Final Portfolio Shares:</span>
+                <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{finalShares} shares</span>
               </div>
 
-              <div className="bg-white border border-[#089981]/40 p-4 rounded-xl text-center mt-3 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-[#089981] tracking-wider block">Projected New Average Price</span>
-                <div className="text-3xl font-black text-[#131722] mt-1">
+              <div className="border border-sky-500/40 p-4 rounded-xl text-center mt-3 shadow-sm bg-sky-50/40 dark:bg-sky-950/30">
+                <span className="text-[10px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider block">Projected New Average Price</span>
+                <div className="text-3xl font-black mt-1">
                   PKR {newAvg.toFixed(2)}
                 </div>
                 {ePrice > 0 && nQty > 0 && (
@@ -959,51 +1364,20 @@ export default function TradingViewPortal() {
         </div>
       )}
 
-      {/* 8. SLOGAN & INSTITUTIONAL FOOTER (Exact TradingView "LOOK FIRST / THEN LEAP") */}
-      <footer className="border-t border-[#e0e3eb] bg-[#f8fafd] pt-12 pb-16 px-6 mt-16 space-y-12">
-        <div className="max-w-[1600px] mx-auto text-center space-y-3">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-[#131722]">
-            LOOK FIRST / THEN LEAP.
-          </h2>
-          <p className="text-sm font-semibold text-[#787b86]">
-            پہلے جانیے، پھر لگائیے۔ Pakistan Stock Exchange Smart Analytics & Averaging Suite.
-          </p>
-        </div>
-
-        <div className="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-xs text-[#787b86]">
-          <div className="space-y-2">
-            <span className="font-bold text-[#131722] block uppercase text-[11px]">Markets</span>
-            <span className="block hover:text-[#131722] cursor-pointer">KSE-100 Benchmark</span>
-            <span className="block hover:text-[#131722] cursor-pointer">KMI-30 Shariah Islamic</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Pakistani Rupee Forex</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Sona / Chandi Bullion</span>
+      {/* 5. INSTITUTIONAL SITEMAP FOOTER */}
+      <footer className={`w-full border-t px-6 py-10 mt-12 text-xs transition-colors ${isDark ? 'bg-[#0b0f19] border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
+        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4 font-num">
+          <div>
+            <span className="font-extrabold text-sm block">NAFAX TERMINAL PAKISTAN</span>
+            <span>Real-time Pakistan Stock Exchange (PSX) DPS Feed & Cost-Averaging Engine.</span>
           </div>
-          <div className="space-y-2">
-            <span className="font-bold text-[#131722] block uppercase text-[11px]">Products</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Smart Averaging Desk</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Lightweight Charts Engine</span>
-            <span className="block hover:text-[#131722] cursor-pointer">PSX Screener 50+</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Volume Profile</span>
+          <div className="flex gap-4">
+            <span>Interbank FX: SBP</span>
+            <span>•</span>
+            <span>Saraf Bullion: 24K Gold Association</span>
+            <span>•</span>
+            <span>Indices: KSE-100 & KMI-30</span>
           </div>
-          <div className="space-y-2">
-            <span className="font-bold text-[#131722] block uppercase text-[11px]">Community</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Certified CMT Analysts</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Trade Setups & Targets</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Brokerage Sentiment</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Educational Guides</span>
-          </div>
-          <div className="space-y-2">
-            <span className="font-bold text-[#131722] block uppercase text-[11px]">Integrations</span>
-            <span className="block hover:text-[#131722] cursor-pointer">KTrade & Finqalab APIs</span>
-            <span className="block hover:text-[#131722] cursor-pointer">State Bank of Pakistan Data</span>
-            <span className="block hover:text-[#131722] cursor-pointer">Sarafa Bullion Association</span>
-            <span className="block hover:text-[#131722] cursor-pointer">SECP Compliance Feed</span>
-          </div>
-        </div>
-
-        <div className="max-w-[1600px] mx-auto border-t border-[#e0e3eb] pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-[#787b86] font-num">
-          <span>© 2026 NafaX Terminal. Built custom for Pakistan financial markets.</span>
-          <span>Data Feed: Pakistan Stock Exchange DPS Portal • Delayed & Intraday</span>
         </div>
       </footer>
 
