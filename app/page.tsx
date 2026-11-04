@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 
-// Verified PSX Market Closing Rates
+// Verified PSX Real Closing Rates
 const PSX_UNIVERSE = [
   { symbol: 'OGDC', name: 'Oil & Gas Development Co', sector: 'Oil & Gas', price: 310.47, change: +6.61, base: 303.86, volume: '5.1M', avgVol: '4.8M', pe: 5.4, mktCap: '1,335B', yield: '5.5%', shariah: true, earnings: 'Nov 04, 2026', range52: '238.2 - 352.0' },
   { symbol: 'MEBL', name: 'Meezan Bank Ltd', sector: 'Banking', price: 539.77, change: +12.02, base: 527.75, volume: '1.2M', avgVol: '980K', pe: 6.2, mktCap: '960B', yield: '8.4%', shariah: true, earnings: 'Nov 03, 2026', range52: '280.0 - 565.0' },
@@ -110,17 +110,15 @@ const INFLUENCER_TIPS = [
 ];
 
 export default function NafaXTerminal() {
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark');
   const [selectedStock, setSelectedStock] = useState(PSX_UNIVERSE[0]);
   const [chartMode, setChartMode] = useState<'candles' | 'area'>('candles');
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
 
-  // Interactive Graph Crosshair State
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
   const [hoveredCandle, setHoveredCandle] = useState<any>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Screener Table Organization & Filters
   const [screenerTab, setScreenerTab] = useState<'all' | 'gainers' | 'losers' | 'volume' | 'priceLow' | 'priceHigh'>('all');
   const [selectedSector, setSelectedSector] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,7 +126,7 @@ export default function NafaXTerminal() {
   const [tablePage, setTablePage] = useState(1);
   const ITEMS_PER_PAGE = 7;
 
-  // Smart Averaging Desk (Floating Component)
+  // Smart Averaging Desk
   const [showAveragingModal, setShowAveragingModal] = useState(false);
   const [holdingQty, setHoldingQty] = useState('1000');
   const [holdingPrice, setHoldingPrice] = useState('295.00');
@@ -137,7 +135,7 @@ export default function NafaXTerminal() {
   const [limitBid, setLimitBid] = useState('300.00');
   const [includeFees, setIncludeFees] = useState(true);
 
-  // Live Demo Paper Trading State
+  // Demo Trading Engine
   const [demoCash, setDemoCash] = useState(1000000);
   const [demoPortfolio, setDemoPortfolio] = useState<{ [symbol: string]: { qty: number; avgCost: number } }>({
     OGDC: { qty: 500, avgCost: 298.50 },
@@ -188,7 +186,6 @@ export default function NafaXTerminal() {
     setTimeout(() => setTradeToast(null), 3500);
   };
 
-  // 45 Daily Realistic Candlesticks
   const candleHistory = useMemo(() => {
     const list = [];
     let p = selectedStock.base;
@@ -214,7 +211,6 @@ export default function NafaXTerminal() {
   const maxHigh = Math.max(...candleHistory.map((c) => c.high));
   const priceRange = maxHigh - minLow || 1;
 
-  // Crosshair Handler
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
@@ -246,7 +242,6 @@ export default function NafaXTerminal() {
   const newAvg = finalShares > 0 ? (eQty * ePrice + capitalReq) / finalShares : 0;
   const deltaAvg = ePrice > 0 ? newAvg - ePrice : 0;
 
-  // Filtered & Sorted Screener Directory
   const processedStocks = useMemo(() => {
     let result = PSX_UNIVERSE.filter((s) => {
       const match = s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) || s.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -269,7 +264,6 @@ export default function NafaXTerminal() {
   const currentStocksPage = processedStocks.slice((tablePage - 1) * ITEMS_PER_PAGE, tablePage * ITEMS_PER_PAGE);
   const sectors = useMemo(() => ['ALL', ...Array.from(new Set(PSX_UNIVERSE.map((s) => s.sector)))], []);
 
-  // Movers
   const topGainers = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => b.change - a.change).slice(0, 5), []);
   const topLosers = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => a.change - b.change).slice(0, 5), []);
   const volumeLeaders = useMemo(() => [...PSX_UNIVERSE].sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume)).slice(0, 5), []);
@@ -277,49 +271,56 @@ export default function NafaXTerminal() {
 
   const isDark = themeMode === 'dark';
 
-  // HIGH CONTRAST EXPLICIT COLOR VARIABLES (Guaranteed 100% visible in both light & dark mode)
-  const cTitle = isDark ? 'text-white' : 'text-[#0f172a]';
-  const cBody = isDark ? 'text-slate-300' : 'text-[#1e293b]';
-  const cMuted = isDark ? 'text-slate-400' : 'text-[#475569]';
-  const cCard = isDark ? 'bg-[#101626] border-slate-800' : 'bg-white border-slate-200';
-  const cBox = isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#f0f7ff] border-sky-200';
+  // ================= 100% BULLETPROOF THEME ENGINE =================
+  const theme = {
+    bg: isDark ? 'bg-[#090d16]' : 'bg-[#ffffff]',
+    headerBg: isDark ? 'bg-[#0e1320] border-[#1e293b]' : 'bg-[#ffffff] border-[#e2e8f0]',
+    cardBg: isDark ? 'bg-[#0e1320] border-[#1e293b]' : 'bg-[#ffffff] border-[#e2e8f0]',
+    subCardBg: isDark ? 'bg-[#151c2e] border-[#1e293b]' : 'bg-[#f0f7ff] border-[#bae6fd]',
+    stripBg: isDark ? 'bg-[#0b101b] border-[#1e293b]' : 'bg-[#f8fafc] border-[#e2e8f0]',
+    innerBox: isDark ? 'bg-[#111827] border-[#1f2937]' : 'bg-[#ffffff] border-[#cbd5e1]',
+    
+    // TEXT COLORS (NEVER CONFLICTS)
+    t1: isDark ? 'text-[#ffffff]' : 'text-[#0f172a]',       // Main Headings (White on Dark, Black on Light)
+    t2: isDark ? 'text-[#cbd5e1]' : 'text-[#1e293b]',       // Body (Light Slate on Dark, Dark Charcoal on Light)
+    t3: isDark ? 'text-[#94a3b8]' : 'text-[#475569]',       // Muted Labels (Gray on Dark, Dark Gray on Light)
+    
+    // Interactive Elements
+    btnLight: isDark ? 'bg-[#1e293b] text-[#ffffff] hover:bg-[#334155]' : 'bg-[#e0f2fe] text-[#0369a1] hover:bg-[#bae6fd] font-bold',
+    selectedRow: isDark ? 'bg-[#1e293b] text-[#38bdf8] border-l-4 border-[#38bdf8]' : 'bg-[#e0f2fe] text-[#0284c7] font-black border-l-4 border-[#0284c7]',
+    badgeBg: isDark ? 'bg-[#1e293b] text-[#38bdf8] border-[#334155]' : 'bg-[#e0f2fe] text-[#0369a1] border-[#bae6fd]'
+  };
 
   return (
-    <div className={`w-full min-h-screen transition-colors duration-200 ${isDark ? 'bg-[#0a0e17] text-white' : 'bg-[#ffffff] text-[#0f172a]'}`}>
+    <div className={`w-full min-h-screen ${theme.bg} ${theme.t1} transition-colors duration-150`}>
       
       {/* 1. TOP GLOBAL HEADER */}
-      <header className={`w-full border-b px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-50 ${isDark ? 'bg-[#101626] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-        
+      <header className={`w-full border-b px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm ${theme.headerBg}`}>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2.5 cursor-pointer">
             <div className="w-9 h-9 rounded-xl bg-sky-500 flex items-center justify-center font-black text-white text-base shadow-md">
               NX
             </div>
             <div>
-              <span className={`font-black text-lg tracking-tight block ${cTitle}`}>
+              <span className={`font-black text-lg tracking-tight block ${theme.t1}`}>
                 NafaX <span className="text-sky-500 font-bold">Terminal</span>
               </span>
-              <span className={`text-[11px] block -mt-1 font-medium ${cMuted}`}>Pakistan Stock Exchange Pro</span>
+              <span className={`text-[11px] block -mt-1 font-medium ${theme.t3}`}>Pakistan Stock Exchange Pro</span>
             </div>
           </div>
 
           <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-500">
-            <span className={`cursor-pointer transition ${isDark ? 'text-white' : 'text-[#0f172a]'}`}>Live Terminal</span>
-            <span className="cursor-pointer hover:text-sky-600 transition">Screener</span>
-            <span className="cursor-pointer hover:text-sky-600 transition">IPOs</span>
-            <span className="cursor-pointer hover:text-sky-600 transition">Brokers</span>
+            <span className={`cursor-pointer ${theme.t1}`}>Live Terminal</span>
+            <span className="cursor-pointer hover:text-sky-500">Screener</span>
+            <span className="cursor-pointer hover:text-sky-500">IPOs</span>
+            <span className="cursor-pointer hover:text-sky-500">Brokers</span>
           </nav>
         </div>
 
-        {/* Right Corner Controls */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAveragingModal(true)}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition shadow-sm font-num ${
-              isDark 
-                ? 'bg-sky-950/60 border border-sky-700 text-sky-300 hover:bg-sky-500 hover:text-white' 
-                : 'bg-[#e0f2fe] border-2 border-sky-400 text-sky-900 hover:bg-sky-600 hover:text-white'
-            }`}
+            className="flex items-center gap-2 bg-sky-500/15 border border-sky-500/30 text-sky-500 hover:bg-sky-500 hover:text-white px-3.5 py-2 rounded-xl text-xs font-black transition font-num"
           >
             <span>⚡</span> Smart Averaging Desk
           </button>
@@ -327,9 +328,7 @@ export default function NafaXTerminal() {
           <button
             onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
             className={`px-3 py-1.5 rounded-xl border text-xs font-black transition flex items-center gap-1.5 ${
-              isDark 
-                ? 'bg-slate-800 border-slate-700 text-white' 
-                : 'bg-[#f0f7ff] border-sky-300 text-sky-900 font-black'
+              isDark ? 'bg-[#151c2e] border-slate-700 text-white' : 'bg-sky-50 border-sky-300 text-sky-900'
             }`}
           >
             {isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}
@@ -338,8 +337,8 @@ export default function NafaXTerminal() {
       </header>
 
       {/* 2. TRENDING STRIP */}
-      <section className={`w-full border-b px-4 sm:px-8 py-2.5 overflow-x-auto flex items-center gap-3 text-sm font-num ${isDark ? 'bg-[#0d1322] border-slate-800' : 'bg-[#f8fafc] border-slate-200'}`}>
-        <span className={`text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-1 ${cMuted}`}>
+      <section className={`w-full border-b px-4 sm:px-8 py-2.5 overflow-x-auto flex items-center gap-3 text-sm font-num ${theme.stripBg}`}>
+        <span className={`text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-1 ${theme.t3}`}>
           <span>🔥</span> PSX Trends:
         </span>
         {['OGDC', 'MEBL', 'MARI', 'PRL', 'HUBC', 'LUCK', 'FFC', 'SYS'].map((sym) => {
@@ -352,12 +351,10 @@ export default function NafaXTerminal() {
               onClick={() => setSelectedStock(stk)}
               className={`shrink-0 px-3.5 py-1.5 rounded-xl border cursor-pointer transition flex items-center gap-2.5 text-xs ${
                 isSelected
-                  ? isDark
-                    ? 'bg-sky-950/80 text-sky-300 border-sky-500 font-black shadow-sm'
-                    : 'bg-[#e0f2fe] text-[#0369a1] border-2 border-sky-600 font-black shadow-sm'
+                  ? 'bg-sky-500 text-white border-sky-500 font-black shadow-sm'
                   : isDark
-                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                  : 'bg-white border-slate-300 text-slate-800 hover:bg-[#e0f2fe] hover:text-sky-900 hover:border-sky-400'
+                  ? 'bg-[#151c2e] border-slate-800 text-slate-200 hover:bg-[#1e293b]'
+                  : 'bg-white border-slate-300 text-slate-800 hover:bg-sky-50 hover:text-sky-900'
               }`}
             >
               <span className="font-black">{sym}</span>
@@ -377,28 +374,28 @@ export default function NafaXTerminal() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           
           {/* Main Chart Area (9 Cols) */}
-          <div className={`lg:col-span-9 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${cCard}`}>
+          <div className={`lg:col-span-9 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${theme.cardBg}`}>
             
             {/* Header Toolbar */}
             <div className={`flex flex-wrap items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <div className="flex items-center gap-3.5">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-base font-num ${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-[#e0f2fe] text-[#0369a1] border-2 border-sky-300'
+                  isDark ? 'bg-slate-800 text-white' : 'bg-sky-100 text-sky-800 border-2 border-sky-300'
                 }`}>
                   {selectedStock.symbol}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className={`text-2xl font-black ${cTitle}`}>{selectedStock.symbol}</h2>
-                    <span className={`text-sm font-semibold ${cMuted}`}>{selectedStock.name}</span>
+                    <h2 className={`text-2xl font-black ${theme.t1}`}>{selectedStock.symbol}</h2>
+                    <span className={`text-sm font-semibold ${theme.t3}`}>{selectedStock.name}</span>
                     {selectedStock.shariah && (
-                      <span className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded-md font-black">
+                      <span className="text-xs bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 px-2 py-0.5 rounded-md font-black">
                         KMI Shariah
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 font-num mt-1">
-                    <span className={`text-3xl font-black ${cTitle}`}>
+                    <span className={`text-3xl font-black ${theme.t1}`}>
                       PKR {selectedStock.price.toFixed(2)}
                     </span>
                     <span className={`text-sm font-black ${selectedStock.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
@@ -410,7 +407,9 @@ export default function NafaXTerminal() {
 
               {/* Timeframes & Modes */}
               <div className="flex flex-wrap items-center gap-3">
-                <div className={`flex p-1 rounded-xl text-xs font-black font-num ${isDark ? 'bg-slate-900 text-slate-400' : 'bg-slate-100 text-slate-700 border border-slate-300'}`}>
+                <div className={`flex p-1 rounded-xl text-xs font-black font-num border ${
+                  isDark ? 'bg-[#151c2e] border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
+                }`}>
                   {(['1D', '1W', '1M', '1Y'] as const).map((t) => (
                     <button
                       key={t}
@@ -418,7 +417,7 @@ export default function NafaXTerminal() {
                       className={`px-3 py-1.5 rounded-lg transition ${
                         timeframe === t
                           ? 'bg-sky-500 text-white font-black shadow-sm'
-                          : 'hover:text-black dark:hover:text-white'
+                          : 'hover:text-sky-500'
                       }`}
                     >
                       {t}
@@ -426,13 +425,15 @@ export default function NafaXTerminal() {
                   ))}
                 </div>
 
-                <div className={`flex p-1 rounded-xl text-xs font-black font-num ${isDark ? 'bg-slate-900 text-slate-400' : 'bg-slate-100 text-slate-700 border border-slate-300'}`}>
+                <div className={`flex p-1 rounded-xl text-xs font-black font-num border ${
+                  isDark ? 'bg-[#151c2e] border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
+                }`}>
                   <button
                     onClick={() => setChartMode('candles')}
                     className={`px-3.5 py-1.5 rounded-lg transition ${
                       chartMode === 'candles'
                         ? 'bg-sky-500 text-white font-black shadow-sm'
-                        : 'hover:text-black dark:hover:text-white'
+                        : 'hover:text-sky-500'
                     }`}
                   >
                     🕯️ Candles
@@ -442,7 +443,7 @@ export default function NafaXTerminal() {
                     className={`px-3.5 py-1.5 rounded-lg transition ${
                       chartMode === 'area'
                         ? 'bg-sky-500 text-white font-black shadow-sm'
-                        : 'hover:text-black dark:hover:text-white'
+                        : 'hover:text-sky-500'
                     }`}
                   >
                     📈 Line
@@ -452,28 +453,26 @@ export default function NafaXTerminal() {
             </div>
 
             {/* Live Crosshair HUD */}
-            <div className={`flex flex-wrap items-center justify-between text-xs sm:text-sm font-num px-4 py-2 rounded-xl border ${
-              isDark ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-[#e0f2fe]/80 border-sky-300 text-[#0f172a]'
-            }`}>
+            <div className={`flex flex-wrap items-center justify-between text-xs sm:text-sm font-num px-4 py-2 rounded-xl border ${theme.subCardBg}`}>
               <div className="flex flex-wrap items-center gap-4">
-                <span>DATE: <strong className={cTitle}>{activeCandle.date}</strong></span>
-                <span>O: <strong className={cTitle}>{activeCandle.open.toFixed(2)}</strong></span>
+                <span>DATE: <strong className={theme.t1}>{activeCandle.date}</strong></span>
+                <span>O: <strong className={theme.t1}>{activeCandle.open.toFixed(2)}</strong></span>
                 <span>H: <strong className="text-[#089981] font-black">{activeCandle.high.toFixed(2)}</strong></span>
                 <span>L: <strong className="text-[#f23645] font-black">{activeCandle.low.toFixed(2)}</strong></span>
                 <span>C: <strong className={`font-black ${activeCandle.close >= activeCandle.open ? 'text-[#089981]' : 'text-[#f23645]'}`}>{activeCandle.close.toFixed(2)}</strong></span>
               </div>
-              <div>VOL: <strong className={cTitle}>{(activeCandle.volume / 1000000).toFixed(2)}M</strong></div>
+              <div>VOL: <strong className={theme.t1}>{(activeCandle.volume / 1000000).toFixed(2)}M</strong></div>
             </div>
 
             {/* DYNAMIC SVG INTERACTIVE GRAPH */}
-            <div className={`relative w-full h-[400px] rounded-xl overflow-hidden select-none border ${isDark ? 'bg-[#0b101c] border-slate-800' : 'bg-[#fafbfc] border-slate-200'}`}>
-              
-              {/* Grid Lines */}
+            <div className={`relative w-full h-[400px] rounded-xl overflow-hidden select-none border ${
+              isDark ? 'bg-[#090d16] border-slate-800' : 'bg-[#fafbfc] border-slate-200'
+            }`}>
               <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 opacity-25">
-                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
-                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
-                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
-                <div className="border-b border-dashed border-slate-300 dark:border-slate-700 w-full"></div>
+                <div className="border-b border-dashed border-slate-500 w-full"></div>
+                <div className="border-b border-dashed border-slate-500 w-full"></div>
+                <div className="border-b border-dashed border-slate-500 w-full"></div>
+                <div className="border-b border-dashed border-slate-500 w-full"></div>
               </div>
 
               <div className="absolute top-3 right-4 text-xs font-num font-black text-slate-500">
@@ -598,15 +597,15 @@ export default function NafaXTerminal() {
           </div>
 
           {/* ================= RIGHT COLUMN: WATCHLIST & DEMO TRADING ================= */}
-          <div className={`lg:col-span-3 rounded-2xl border p-5 shadow-sm space-y-4 ${cCard}`}>
+          <div className={`lg:col-span-3 rounded-2xl border p-5 shadow-sm space-y-4 ${theme.cardBg}`}>
             
             {/* Watchlist Header */}
             <div className={`flex justify-between items-center border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <div className="flex items-center gap-1.5 cursor-pointer">
-                <span className={`font-black text-sm sm:text-base ${cTitle}`}>Watchlist</span>
-                <span className={`text-xs ${cMuted}`}>▾</span>
+                <span className={`font-black text-sm sm:text-base ${theme.t1}`}>Watchlist</span>
+                <span className={`text-xs ${theme.t3}`}>▾</span>
               </div>
-              <div className={`flex items-center gap-2 text-xs ${cMuted}`}>
+              <div className={`flex items-center gap-2 text-xs ${theme.t3}`}>
                 <span className="cursor-pointer hover:text-sky-500 font-bold">+</span>
                 <span className="cursor-pointer hover:text-sky-500">⛶</span>
                 <span className="cursor-pointer hover:text-sky-500">•••</span>
@@ -616,15 +615,14 @@ export default function NafaXTerminal() {
             {/* Watchlist Items */}
             <div className="space-y-3 max-h-[290px] overflow-y-auto pr-1 text-xs font-num">
               
-              {/* Indices */}
               <div>
-                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${cMuted}`}>INDICES</span>
+                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${theme.t3}`}>INDICES</span>
                 <div className="space-y-1">
                   {WATCHLIST_INDICES.map((idx) => (
-                    <div key={idx.symbol} className={`flex justify-between items-center py-1.5 px-2 rounded-lg cursor-pointer ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-[#e0f2fe]'}`}>
-                      <span className={`font-black text-xs ${cTitle}`}>{idx.symbol}</span>
+                    <div key={idx.symbol} className={`flex justify-between items-center py-1.5 px-2 rounded-lg cursor-pointer ${isDark ? 'hover:bg-slate-800' : 'hover:bg-sky-50'}`}>
+                      <span className={`font-black text-xs ${theme.t1}`}>{idx.symbol}</span>
                       <div className="text-right">
-                        <span className={`font-black block ${cTitle}`}>{idx.last}</span>
+                        <span className={`font-black block ${theme.t1}`}>{idx.last}</span>
                         <span className={`text-[10px] font-black ${idx.isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                           {idx.chg} ({idx.chgPct})
                         </span>
@@ -634,9 +632,9 @@ export default function NafaXTerminal() {
                 </div>
               </div>
 
-              {/* Equities (FIXED: Screenshot 5 resolved! High contrast text) */}
+              {/* Equities */}
               <div className={`border-t pt-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${cMuted}`}>STOCKS</span>
+                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${theme.t3}`}>STOCKS</span>
                 <div className="space-y-1">
                   {PSX_UNIVERSE.slice(0, 5).map((stk) => {
                     const isSelected = selectedStock.symbol === stk.symbol;
@@ -646,12 +644,10 @@ export default function NafaXTerminal() {
                         onClick={() => setSelectedStock(stk)}
                         className={`flex justify-between items-center py-1.5 px-2.5 rounded-lg cursor-pointer transition ${
                           isSelected
-                            ? isDark
-                              ? 'bg-sky-950/70 text-sky-200 border border-sky-700 font-black'
-                              : 'bg-[#e0f2fe] text-[#0369a1] border-l-4 border-sky-600 font-black shadow-sm'
+                            ? theme.selectedRow
                             : isDark
-                            ? 'text-slate-200 hover:bg-slate-800/60'
-                            : 'text-[#0f172a] hover:bg-[#e0f2fe] hover:text-[#0369a1]'
+                            ? 'text-slate-200 hover:bg-slate-800'
+                            : 'text-slate-800 hover:bg-sky-50'
                         }`}
                       >
                         <span className="font-black text-xs">{stk.symbol}</span>
@@ -669,13 +665,13 @@ export default function NafaXTerminal() {
 
               {/* Commodities */}
               <div className={`border-t pt-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${cMuted}`}>COMMODITIES & FOREX</span>
+                <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${theme.t3}`}>COMMODITIES & FOREX</span>
                 <div className="space-y-1">
                   {WATCHLIST_FOREX_FUTURES.map((item) => (
-                    <div key={item.symbol} className={`flex justify-between items-center py-1.5 px-2 rounded-lg cursor-pointer ${isDark ? 'hover:bg-slate-800/60' : 'hover:bg-[#e0f2fe]'}`}>
-                      <span className={`font-black text-xs ${cTitle}`}>{item.symbol}</span>
+                    <div key={item.symbol} className={`flex justify-between items-center py-1.5 px-2 rounded-lg cursor-pointer ${isDark ? 'hover:bg-slate-800' : 'hover:bg-sky-50'}`}>
+                      <span className={`font-black text-xs ${theme.t1}`}>{item.symbol}</span>
                       <div className="text-right">
-                        <span className={`font-black block ${cTitle}`}>{item.last}</span>
+                        <span className={`font-black block ${theme.t1}`}>{item.last}</span>
                         <span className={`text-[10px] font-black ${item.isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                           {item.chgPct}
                         </span>
@@ -687,48 +683,46 @@ export default function NafaXTerminal() {
 
             </div>
 
-            {/* LIVE DEMO TRADING DESK (FIXED: Screenshot 1 resolved! 100% Dark Text in Light Mode) */}
+            {/* LIVE DEMO TRADING DESK */}
             <div className={`border-t pt-3.5 space-y-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className={`font-black text-xs uppercase tracking-wider ${isDark ? 'text-white' : 'text-[#0f172a]'}`}>
+                  <span className={`font-black text-xs uppercase tracking-wider ${theme.t1}`}>
                     DEMO TRADE DESK
                   </span>
                 </div>
-                <span className={`text-xs font-black font-num ${isDark ? 'text-sky-400' : 'text-[#0284c7]'}`}>
+                <span className="text-xs font-black font-num text-sky-500">
                   Cash: PKR {demoCash.toLocaleString()}
                 </span>
               </div>
 
               {tradeToast && (
-                <div className="p-2 rounded-lg bg-sky-100 border border-sky-400 text-xs text-sky-950 font-black text-center">
+                <div className="p-2 rounded-lg bg-sky-500/20 border border-sky-500 text-xs text-sky-500 font-black text-center">
                   {tradeToast}
                 </div>
               )}
 
               {/* Box inside Demo Desk */}
-              <div className={`p-3.5 rounded-xl border space-y-2.5 ${
-                isDark ? 'bg-slate-900/60 border-slate-800 text-white' : 'bg-[#e0f2fe]/80 border-sky-300 text-[#0f172a]'
-              }`}>
+              <div className={`p-3.5 rounded-xl border space-y-2.5 ${theme.subCardBg}`}>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-black text-[#0f172a] dark:text-slate-200">Active Asset:</span>
-                  <span className="font-black text-sky-800 dark:text-sky-300 font-num text-sm">
+                  <span className={`font-black ${theme.t1}`}>Active Asset:</span>
+                  <span className="font-black text-sky-500 font-num text-sm">
                     {selectedStock.symbol} (PKR {selectedStock.price})
                   </span>
                 </div>
 
-                {/* Input with Clear Dark Text */}
+                {/* Input with Clear Text in Both Modes */}
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-black text-[#0f172a] dark:text-slate-200">Quantity:</label>
+                  <label className={`text-xs font-black ${theme.t1}`}>Quantity:</label>
                   <input
                     type="number"
                     value={tradeSharesInput}
                     onChange={(e) => setTradeSharesInput(e.target.value)}
                     className={`w-full border-2 rounded-lg p-2 text-xs font-num font-black text-center outline-none ${
                       isDark
-                        ? 'bg-slate-800 border-slate-700 text-white focus:border-sky-500'
-                        : 'bg-white border-sky-400 text-[#0f172a] focus:border-sky-600 shadow-sm'
+                        ? 'bg-[#090d16] border-slate-700 text-white focus:border-sky-500'
+                        : 'bg-white border-sky-300 text-slate-900 focus:border-sky-600 shadow-sm'
                     }`}
                   />
                 </div>
@@ -751,14 +745,14 @@ export default function NafaXTerminal() {
 
               {/* Demo Holdings Summary */}
               <div className="text-xs font-num space-y-1">
-                <span className={`font-black block uppercase text-[10px] ${cMuted}`}>Your Demo Holdings:</span>
+                <span className={`font-black block uppercase text-[10px] ${theme.t3}`}>Your Demo Holdings:</span>
                 {Object.keys(demoPortfolio).length === 0 ? (
-                  <span className={`text-[11px] font-medium ${cMuted}`}>No active positions. Execute a trade above!</span>
+                  <span className={`text-[11px] font-medium ${theme.t3}`}>No active positions. Execute a trade above!</span>
                 ) : (
                   Object.entries(demoPortfolio).map(([sym, pos]) => (
-                    <div key={sym} className={`flex justify-between items-center py-1 border-b ${isDark ? 'border-slate-800 text-white' : 'border-slate-200 text-[#0f172a]'}`}>
-                      <span className="font-black">{sym} ({pos.qty} sh)</span>
-                      <span className={`font-bold ${cMuted}`}>Avg: PKR {pos.avgCost.toFixed(1)}</span>
+                    <div key={sym} className={`flex justify-between items-center py-1 border-b ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                      <span className={`font-black ${theme.t1}`}>{sym} ({pos.qty} sh)</span>
+                      <span className={`font-bold ${theme.t3}`}>Avg: PKR {pos.avgCost.toFixed(1)}</span>
                     </div>
                   ))
                 )}
@@ -772,30 +766,28 @@ export default function NafaXTerminal() {
         {/* ROW 2: PAKISTAN MACRO 3-CARD SUMMARY */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
-          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className="flex justify-between items-center">
-              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${cMuted}`}>
+              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${theme.t3}`}>
                 <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span> PSX Equity Market Cap
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${
-                isDark ? 'bg-slate-800 text-slate-200' : 'bg-sky-100 text-sky-900 border border-sky-300'
-              }`}>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${theme.badgeBg}`}>
                 TOTAL
               </span>
             </div>
             <div className="flex items-baseline gap-2 font-num">
-              <span className={`text-2xl sm:text-3xl font-black ${cTitle}`}>PKR 14.85 Trillion</span>
+              <span className={`text-2xl sm:text-3xl font-black ${theme.t1}`}>PKR 14.85 Trillion</span>
               <span className="text-xs font-black text-[#089981]">+8.4% YTD</span>
             </div>
             <div className="space-y-1.5 pt-2">
-              <span className={`text-[10px] uppercase font-black block ${cMuted}`}>Sector Market Dominance:</span>
+              <span className={`text-[10px] uppercase font-black block ${theme.t3}`}>Sector Market Dominance:</span>
               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden">
                 <div className="h-full bg-sky-500" style={{ width: '38%' }}></div>
                 <div className="h-full bg-emerald-500" style={{ width: '32%' }}></div>
                 <div className="h-full bg-amber-500" style={{ width: '18%' }}></div>
                 <div className="h-full bg-slate-400" style={{ width: '12%' }}></div>
               </div>
-              <div className={`flex justify-between text-[11px] font-num font-bold pt-1 ${cMuted}`}>
+              <div className={`flex justify-between text-[11px] font-num font-bold pt-1 ${theme.t3}`}>
                 <span>Energy: 38%</span>
                 <span>Banks: 32%</span>
                 <span>Cement: 18%</span>
@@ -804,54 +796,50 @@ export default function NafaXTerminal() {
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className="flex justify-between items-center">
-              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${cMuted}`}>
+              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${theme.t3}`}>
                 <span className="w-2.5 h-2.5 rounded-full bg-[#089981]"></span> PKR Forex & Bullion Desk
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${
-                isDark ? 'bg-slate-800 text-slate-200' : 'bg-sky-100 text-sky-900 border border-sky-300'
-              }`}>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${theme.badgeBg}`}>
                 SPOT
               </span>
             </div>
             <div className="flex items-baseline gap-2 font-num">
-              <span className={`text-2xl sm:text-3xl font-black ${cTitle}`}>278.45 USD/PKR</span>
+              <span className={`text-2xl sm:text-3xl font-black ${theme.t1}`}>278.45 USD/PKR</span>
               <span className="text-xs font-black text-[#f23645]">-0.05%</span>
             </div>
             <div className={`space-y-1.5 text-xs font-num divide-y pt-1 ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
-              <div className={`flex justify-between py-1 ${cBody}`}>
-                <span className="font-bold">Gold 24K (Per Tola):</span>
-                <span className="font-black text-amber-600 dark:text-amber-500">PKR 284,500</span>
+              <div className="flex justify-between py-1">
+                <span className={`font-bold ${theme.t2}`}>Gold 24K (Per Tola):</span>
+                <span className="font-black text-amber-500">PKR 284,500</span>
               </div>
-              <div className={`flex justify-between py-1 ${cBody}`}>
-                <span className="font-bold">Silver 24K (Per Tola):</span>
-                <span className="font-black">PKR 3,350</span>
+              <div className="flex justify-between py-1">
+                <span className={`font-bold ${theme.t2}`}>Silver 24K (Per Tola):</span>
+                <span className={`font-black ${theme.t1}`}>PKR 3,350</span>
               </div>
-              <div className={`flex justify-between py-1 ${cBody}`}>
-                <span className="font-bold">Crude Oil (Brent):</span>
-                <span className="font-black">$74.20/bbl</span>
+              <div className="flex justify-between py-1">
+                <span className={`font-bold ${theme.t2}`}>Crude Oil (Brent):</span>
+                <span className={`font-black ${theme.t1}`}>$74.20/bbl</span>
               </div>
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-5 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className="flex justify-between items-center">
-              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${cMuted}`}>
+              <span className={`text-xs font-black uppercase flex items-center gap-1.5 ${theme.t3}`}>
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 10Y PIB Yield & Inflation
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${
-                isDark ? 'bg-slate-800 text-slate-200' : 'bg-sky-100 text-sky-900 border border-sky-300'
-              }`}>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-black font-num ${theme.badgeBg}`}>
                 MACRO
               </span>
             </div>
             <div className="flex items-baseline gap-2 font-num">
-              <span className={`text-2xl sm:text-3xl font-black ${cTitle}`}>13.80% PIB</span>
+              <span className={`text-2xl sm:text-3xl font-black ${theme.t1}`}>13.80% PIB</span>
               <span className="text-xs font-black text-[#089981]">-180 bps</span>
             </div>
             <div className="space-y-1.5 pt-1">
-              <span className={`text-[10px] uppercase font-black block ${cMuted}`}>Monthly Inflation Trend (CPI %):</span>
+              <span className={`text-[10px] uppercase font-black block ${theme.t3}`}>Monthly Inflation Trend (CPI %):</span>
               <div className="flex items-end justify-between h-10 gap-1 pt-1">
                 {[12.5, 11.8, 9.6, 9.2, 7.8, 7.2, 6.9].map((val, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -859,7 +847,7 @@ export default function NafaXTerminal() {
                   </div>
                 ))}
               </div>
-              <div className={`flex justify-between text-[10px] font-num font-bold ${cMuted}`}>
+              <div className={`flex justify-between text-[10px] font-num font-bold ${theme.t3}`}>
                 <span>May</span>
                 <span>Jul</span>
                 <span>Sep</span>
@@ -871,16 +859,16 @@ export default function NafaXTerminal() {
 
         </div>
 
-        {/* ROW 3: FEATURED IPOS (FIXED: Screenshot 2 resolved! Pure dark text on light mode) */}
-        <div className={`rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${cCard}`}>
+        {/* ROW 3: FEATURED IPOS */}
+        <div className={`rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${theme.cardBg}`}>
           <div className={`flex justify-between items-center border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
             <div>
-              <h2 className={`text-lg sm:text-xl font-black flex items-center gap-2 ${cTitle}`}>
+              <h2 className={`text-lg sm:text-xl font-black flex items-center gap-2 ${theme.t1}`}>
                 Featured IPOs & Offerings <span className="text-slate-400 text-sm font-normal">›</span>
               </h2>
-              <p className={`text-xs font-medium ${cMuted}`}>Upcoming and recently concluded Pakistan Stock Exchange primary offerings</p>
+              <p className={`text-xs font-medium ${theme.t3}`}>Upcoming and recently concluded Pakistan Stock Exchange primary offerings</p>
             </div>
-            <span className="text-xs text-sky-600 dark:text-sky-400 font-black cursor-pointer hover:underline">
+            <span className="text-xs text-sky-500 font-black cursor-pointer hover:underline">
               See more IPO events ›
             </span>
           </div>
@@ -890,29 +878,27 @@ export default function NafaXTerminal() {
               <div
                 key={ipo.symbol}
                 className={`p-4 rounded-xl border transition cursor-pointer hover:shadow-md ${
-                  isDark ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700' : 'bg-[#f8fafc] border-slate-200 hover:bg-[#e0f2fe]'
+                  isDark ? 'bg-[#151c2e] border-slate-800 hover:border-slate-700' : 'bg-[#f8fafc] border-slate-200 hover:bg-[#f0f7ff]'
                 }`}
               >
                 <div className="flex items-center gap-2.5 mb-2.5">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs font-num ${
-                    isDark ? 'bg-slate-800 text-sky-400' : 'bg-[#e0f2fe] text-sky-900 border border-sky-300'
-                  }`}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs font-num bg-sky-500 text-white shadow-sm">
                     {ipo.symbol}
                   </div>
                   <div>
-                    <span className={`font-black text-xs block truncate ${cTitle}`}>{ipo.name}</span>
-                    <span className={`text-[10px] font-bold ${cMuted}`}>{ipo.exchange}</span>
+                    <span className={`font-black text-xs block truncate ${theme.t1}`}>{ipo.name}</span>
+                    <span className={`text-[10px] font-bold ${theme.t3}`}>{ipo.exchange}</span>
                   </div>
                 </div>
 
                 <div className={`space-y-1 text-xs font-num pt-1.5 border-t ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className={`flex justify-between text-[10px] ${cMuted}`}>
+                  <div className={`flex justify-between text-[10px] ${theme.t3}`}>
                     <span>Issue Size:</span>
-                    <span className={`font-black ${cTitle}`}>{ipo.valuation}</span>
+                    <span className={`font-black ${theme.t1}`}>{ipo.valuation}</span>
                   </div>
-                  <div className={`flex justify-between text-[10px] ${cMuted}`}>
+                  <div className={`flex justify-between text-[10px] ${theme.t3}`}>
                     <span>Status:</span>
-                    <span className="font-black text-sky-600 dark:text-sky-400">{ipo.status}</span>
+                    <span className="font-black text-sky-500">{ipo.status}</span>
                   </div>
                 </div>
               </div>
@@ -920,23 +906,23 @@ export default function NafaXTerminal() {
           </div>
         </div>
 
-        {/* ROW 4: 4-GRID MARKET MOVERS (FIXED: Screenshot 3 resolved!) */}
+        {/* ROW 4: 4-GRID MARKET MOVERS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-              <h3 className={`font-black text-xs uppercase tracking-wider ${cTitle}`}>Highest Volume Stocks</h3>
-              <span className={`text-[10px] font-bold ${cMuted}`}>Regular hours</span>
+              <h3 className={`font-black text-xs uppercase tracking-wider ${theme.t1}`}>Highest Volume Stocks</h3>
+              <span className={`text-[10px] font-bold ${theme.t3}`}>Regular hours</span>
             </div>
             <div className="space-y-2 text-xs font-num">
               {volumeLeaders.map((s) => (
-                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#e0f2fe]'}`}>
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#f0f7ff]'}`}>
                   <div>
-                    <span className={`font-black block ${cTitle}`}>{s.symbol}</span>
-                    <span className={`text-[10px] font-semibold ${cMuted}`}>{s.volume} Shares</span>
+                    <span className={`font-black block ${theme.t1}`}>{s.symbol}</span>
+                    <span className={`text-[10px] font-semibold ${theme.t3}`}>{s.volume} Shares</span>
                   </div>
                   <div className="text-right">
-                    <span className={`font-black block ${cTitle}`}>PKR {s.price.toFixed(1)}</span>
+                    <span className={`font-black block ${theme.t1}`}>PKR {s.price.toFixed(1)}</span>
                     <span className={`text-[10px] font-black ${s.change >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                       {s.change >= 0 ? `+${s.change}%` : `${s.change}%`}
                     </span>
@@ -946,41 +932,41 @@ export default function NafaXTerminal() {
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-              <h3 className={`font-black text-xs uppercase tracking-wider ${cTitle}`}>Most Volatile Stocks</h3>
-              <span className={`text-[10px] font-bold ${cMuted}`}>Intraday Swings</span>
+              <h3 className={`font-black text-xs uppercase tracking-wider ${theme.t1}`}>Most Volatile Stocks</h3>
+              <span className={`text-[10px] font-bold ${theme.t3}`}>Intraday Swings</span>
             </div>
             <div className="space-y-2 text-xs font-num">
               {mostVolatile.map((s) => (
-                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#e0f2fe]'}`}>
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#f0f7ff]'}`}>
                   <div>
-                    <span className={`font-black block ${cTitle}`}>{s.symbol}</span>
-                    <span className={`text-[10px] font-semibold ${cMuted}`}>{s.sector}</span>
+                    <span className={`font-black block ${theme.t1}`}>{s.symbol}</span>
+                    <span className={`text-[10px] font-semibold ${theme.t3}`}>{s.sector}</span>
                   </div>
                   <div className="text-right">
-                    <span className={`font-black block ${cTitle}`}>PKR {s.price.toFixed(1)}</span>
-                    <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 font-num">±{Math.abs(s.change)}%</span>
+                    <span className={`font-black block ${theme.t1}`}>PKR {s.price.toFixed(1)}</span>
+                    <span className="text-[10px] font-black text-amber-500 font-num">±{Math.abs(s.change)}%</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <h3 className="font-black text-xs uppercase tracking-wider text-[#089981]">Top Gainers</h3>
-              <span className="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-1.5 py-0.5 rounded font-black">▲ Bulls</span>
+              <span className="text-[10px] bg-emerald-500/15 text-emerald-500 px-1.5 py-0.5 rounded font-black">▲ Bulls</span>
             </div>
             <div className="space-y-2 text-xs font-num">
               {topGainers.map((s) => (
-                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#e0f2fe]'}`}>
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#f0f7ff]'}`}>
                   <div>
-                    <span className={`font-black block ${cTitle}`}>{s.symbol}</span>
-                    <span className={`text-[10px] font-semibold truncate max-w-[95px] block ${cMuted}`}>{s.name}</span>
+                    <span className={`font-black block ${theme.t1}`}>{s.symbol}</span>
+                    <span className={`text-[10px] font-semibold truncate max-w-[95px] block ${theme.t3}`}>{s.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className={`font-black block ${cTitle}`}>PKR {s.price.toFixed(1)}</span>
+                    <span className={`font-black block ${theme.t1}`}>PKR {s.price.toFixed(1)}</span>
                     <span className="text-[10px] font-black text-[#089981]">+{s.change}%</span>
                   </div>
                 </div>
@@ -988,20 +974,20 @@ export default function NafaXTerminal() {
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${cCard}`}>
+          <div className={`rounded-2xl border p-4 shadow-sm space-y-3 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <h3 className="font-black text-xs uppercase tracking-wider text-[#f23645]">Top Losers</h3>
-              <span className="text-[10px] bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 px-1.5 py-0.5 rounded font-black">▼ Dips</span>
+              <span className="text-[10px] bg-rose-500/15 text-rose-500 px-1.5 py-0.5 rounded font-black">▼ Dips</span>
             </div>
             <div className="space-y-2 text-xs font-num">
               {topLosers.map((s) => (
-                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#e0f2fe]'}`}>
+                <div key={s.symbol} onClick={() => setSelectedStock(s)} className={`flex justify-between items-center py-1.5 px-2 rounded cursor-pointer transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-[#f0f7ff]'}`}>
                   <div>
-                    <span className={`font-black block ${cTitle}`}>{s.symbol}</span>
-                    <span className={`text-[10px] font-semibold truncate max-w-[95px] block ${cMuted}`}>{s.name}</span>
+                    <span className={`font-black block ${theme.t1}`}>{s.symbol}</span>
+                    <span className={`text-[10px] font-semibold truncate max-w-[95px] block ${theme.t3}`}>{s.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className={`font-black block ${cTitle}`}>PKR {s.price.toFixed(1)}</span>
+                    <span className={`font-black block ${theme.t1}`}>PKR {s.price.toFixed(1)}</span>
                     <span className="text-[10px] font-black text-[#f23645]">{s.change}%</span>
                   </div>
                 </div>
@@ -1011,19 +997,19 @@ export default function NafaXTerminal() {
 
         </div>
 
-        {/* ROW 5: ORGANIZED PSX EQUITIES SCREENER (FIXED: Screenshot 4 resolved!) */}
-        <div className={`rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${cCard}`}>
+        {/* ROW 5: ORGANIZED PSX EQUITIES SCREENER */}
+        <div className={`rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${theme.cardBg}`}>
           <div className={`flex flex-wrap items-center justify-between gap-3 border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
             <div>
-              <h2 className={`text-xl font-black flex items-center gap-2 ${cTitle}`}>
+              <h2 className={`text-xl font-black flex items-center gap-2 ${theme.t1}`}>
                 PSX Screener & Filter Engine <span className="text-slate-400 text-sm font-normal">›</span>
               </h2>
-              <p className={`text-xs font-medium ${cMuted}`}>Search and sort 50+ equities with customizable filters and quick averaging</p>
+              <p className={`text-xs font-medium ${theme.t3}`}>Search and sort 50+ equities with customizable filters and quick averaging</p>
             </div>
 
             {/* Filter Pills Container */}
             <div className={`flex flex-wrap items-center gap-1.5 p-1 rounded-xl text-xs font-black font-num border ${
-              isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#f1f5f9] border-slate-300'
+              isDark ? 'bg-[#151c2e] border-slate-800' : 'bg-slate-100 border-slate-300'
             }`}>
               {[
                 { id: 'all', label: 'All (50+)' },
@@ -1041,7 +1027,7 @@ export default function NafaXTerminal() {
                       ? 'bg-sky-500 text-white font-black shadow-sm'
                       : isDark
                       ? 'text-slate-400 hover:text-white'
-                      : 'text-[#1e293b] hover:text-black hover:bg-white'
+                      : 'text-slate-700 hover:text-black hover:bg-white'
                   }`}
                 >
                   {tab.label}
@@ -1059,14 +1045,14 @@ export default function NafaXTerminal() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`border rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:border-sky-500 w-56 ${
-                  isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                  isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
                 }`}
               />
               <select
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(e.target.value)}
                 className={`border rounded-lg px-3 py-1.5 text-xs font-black outline-none ${
-                  isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                  isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
                 }`}
               >
                 {sectors.map((sec) => (
@@ -1079,15 +1065,15 @@ export default function NafaXTerminal() {
                   shariahFilter 
                     ? 'bg-emerald-600 text-white border-emerald-600' 
                     : isDark 
-                    ? 'bg-slate-900 border-slate-700 text-slate-400' 
-                    : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                    ? 'bg-[#090d16] border-slate-700 text-slate-400' 
+                    : 'bg-white border-slate-300 text-slate-700'
                 }`}
               >
                 KMI Shariah Only
               </button>
             </div>
 
-            <span className={`font-num font-bold ${cMuted}`}>
+            <span className={`font-num font-bold ${theme.t3}`}>
               Showing {currentStocksPage.length} of {processedStocks.length} equities
             </span>
           </div>
@@ -1108,7 +1094,7 @@ export default function NafaXTerminal() {
                   <th className="py-2.5 px-3 text-center">Desk Action</th>
                 </tr>
               </thead>
-              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-200'}`}>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
                 {currentStocksPage.map((stk) => {
                   const isUp = stk.change >= 0;
                   const isSelected = stk.symbol === selectedStock.symbol;
@@ -1118,26 +1104,24 @@ export default function NafaXTerminal() {
                       onClick={() => setSelectedStock(stk)}
                       className={`transition cursor-pointer ${
                         isSelected
-                          ? isDark
-                            ? 'bg-sky-950/60 text-sky-200'
-                            : 'bg-[#e0f2fe] text-[#0369a1] font-black border-l-4 border-sky-600'
+                          ? theme.selectedRow
                           : isDark
                           ? 'hover:bg-slate-800/60'
-                          : 'hover:bg-[#f0f7ff]'
+                          : 'hover:bg-sky-50'
                       }`}
                     >
-                      <td className={`py-3 px-3 font-black flex items-center gap-1.5 ${isSelected && !isDark ? 'text-[#0369a1]' : cTitle}`}>
+                      <td className={`py-3 px-3 font-black flex items-center gap-1.5 ${theme.t1}`}>
                         {stk.symbol}
-                        {stk.shariah && <span className="text-[9px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 px-1 rounded font-black">KMI</span>}
+                        {stk.shariah && <span className="text-[9px] bg-emerald-500/15 text-emerald-500 px-1 rounded font-black">KMI</span>}
                       </td>
-                      <td className={`py-3 px-3 font-sans truncate max-w-[150px] ${isSelected && !isDark ? 'text-[#0f172a] font-bold' : cBody}`}>{stk.name}</td>
-                      <td className={`py-3 px-3 font-sans ${isSelected && !isDark ? 'text-[#0f172a] font-bold' : cMuted}`}>{stk.sector}</td>
-                      <td className={`py-3 px-3 text-right font-black ${isSelected && !isDark ? 'text-[#0f172a]' : cTitle}`}>PKR {stk.price.toFixed(2)}</td>
+                      <td className={`py-3 px-3 font-sans truncate max-w-[150px] ${theme.t2}`}>{stk.name}</td>
+                      <td className={`py-3 px-3 font-sans ${theme.t3}`}>{stk.sector}</td>
+                      <td className={`py-3 px-3 text-right font-black ${theme.t1}`}>PKR {stk.price.toFixed(2)}</td>
                       <td className={`py-3 px-3 text-right font-black ${isUp ? 'text-[#089981]' : 'text-[#f23645]'}`}>
                         {isUp ? `+${stk.change.toFixed(2)}%` : `${stk.change.toFixed(2)}%`}
                       </td>
-                      <td className={`py-3 px-3 text-right font-bold ${isSelected && !isDark ? 'text-[#0f172a]' : cBody}`}>{stk.volume}</td>
-                      <td className={`py-3 px-3 text-right font-bold ${isSelected && !isDark ? 'text-[#0f172a]' : cMuted}`}>{stk.pe}x</td>
+                      <td className={`py-3 px-3 text-right font-bold ${theme.t2}`}>{stk.volume}</td>
+                      <td className={`py-3 px-3 text-right font-bold ${theme.t3}`}>{stk.pe}x</td>
                       <td className="py-3 px-3 text-right font-black text-[#089981]">{stk.yield}</td>
                       <td className="py-3 px-3 text-center">
                         <button
@@ -1159,7 +1143,7 @@ export default function NafaXTerminal() {
           </div>
 
           {totalPages > 1 && (
-            <div className={`flex justify-between items-center pt-2 text-xs font-num border-t ${isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-[#0f172a] font-bold'}`}>
+            <div className={`flex justify-between items-center pt-2 text-xs font-num border-t ${isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-900 font-bold'}`}>
               <span>Page {tablePage} of {totalPages}</span>
               <div className="flex gap-1.5">
                 <button
@@ -1181,19 +1165,19 @@ export default function NafaXTerminal() {
           )}
         </div>
 
-        {/* ROW 6: PAKISTAN BREAKING NEWS & INFLUENCER TIPS (FIXED: Screenshot 5 resolved! 100% Dark text in light mode!) */}
+        {/* ROW 6: PAKISTAN BREAKING NEWS & INFLUENCER TIPS */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           
-          <div className={`lg:col-span-8 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${cCard}`}>
+          <div className={`lg:col-span-8 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <div>
-                <h3 className={`text-base sm:text-lg font-black flex items-center gap-2 ${cTitle}`}>
+                <h3 className={`text-base sm:text-lg font-black flex items-center gap-2 ${theme.t1}`}>
                   <span>📰</span> Market News & Regulatory Filings
                 </h3>
-                <p className={`text-xs font-medium ${cMuted}`}>Macro updates, SBP releases, and earnings affecting PSX stock valuations</p>
+                <p className={`text-xs font-medium ${theme.t3}`}>Macro updates, SBP releases, and earnings affecting PSX stock valuations</p>
               </div>
               <span className={`text-[10px] px-2.5 py-1 rounded-md font-num font-black border ${
-                isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                isDark ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800' : 'bg-emerald-50 text-emerald-800 border-emerald-300'
               }`}>
                 Live Feed Active
               </span>
@@ -1202,54 +1186,52 @@ export default function NafaXTerminal() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {BREAKING_NEWS.map((n) => (
                 <div key={n.id} className={`p-3.5 rounded-xl border flex gap-3.5 hover:shadow-md transition ${
-                  isDark ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700' : 'bg-[#f8fafc] border-slate-200 hover:bg-[#e0f2fe]'
+                  isDark ? 'bg-[#151c2e] border-slate-800 hover:border-slate-700' : 'bg-[#f8fafc] border-slate-200 hover:bg-sky-50'
                 }`}>
                   <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-slate-200">
                     <img src={n.image} alt={n.tag} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col justify-between space-y-1">
-                    <span className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">
-                      {n.tag} • <span className={cMuted}>{n.time}</span>
+                    <span className="text-[9px] font-black uppercase text-sky-500 tracking-wider">
+                      {n.tag} • <span className={theme.t3}>{n.time}</span>
                     </span>
-                    <h4 className={`text-xs font-black leading-snug line-clamp-2 hover:text-sky-500 cursor-pointer ${cTitle}`}>
+                    <h4 className={`text-xs font-black leading-snug line-clamp-2 hover:text-sky-500 cursor-pointer ${theme.t1}`}>
                       {n.headline}
                     </h4>
-                    <span className={`text-[10px] font-bold font-num ${cMuted}`}>{n.impact}</span>
+                    <span className={`text-[10px] font-bold font-num ${theme.t3}`}>{n.impact}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className={`lg:col-span-4 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${cCard}`}>
+          <div className={`lg:col-span-4 rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4 ${theme.cardBg}`}>
             <div className={`flex justify-between items-center border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <div>
-                <h3 className={`text-base sm:text-lg font-black flex items-center gap-1.5 ${cTitle}`}>
+                <h3 className={`text-base sm:text-lg font-black flex items-center gap-1.5 ${theme.t1}`}>
                   <span>💡</span> Analyst & Influencer Calls
                 </h3>
-                <p className={`text-xs font-medium ${cMuted}`}>Actionable advice & targets from verified PSX strategists</p>
+                <p className={`text-xs font-medium ${theme.t3}`}>Actionable advice & targets from verified PSX strategists</p>
               </div>
             </div>
 
             <div className="space-y-3">
               {INFLUENCER_TIPS.map((tip, i) => (
                 <div key={i} className={`p-3.5 rounded-xl border space-y-1.5 ${
-                  isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-[#f8fafc] border-slate-200'
+                  isDark ? 'bg-[#151c2e] border-slate-800' : 'bg-[#f8fafc] border-slate-200'
                 }`}>
                   <div className="flex justify-between items-center">
                     <div>
-                      {/* FIXED: Dark Black Name in Light Mode */}
-                      <span className={`font-black text-sm block ${cTitle}`}>{tip.name}</span>
-                      <span className={`text-[10px] font-bold ${cMuted}`}>{tip.title}</span>
+                      <span className={`font-black text-sm block ${theme.t1}`}>{tip.name}</span>
+                      <span className={`text-[10px] font-bold ${theme.t3}`}>{tip.title}</span>
                     </div>
-                    <span className="text-[10px] bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded font-black font-num">
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 px-2 py-0.5 rounded font-black font-num">
                       {tip.call}
                     </span>
                   </div>
-                  {/* FIXED: Dark Slate paragraph text in Light Mode */}
-                  <p className={`text-xs leading-relaxed font-sans font-semibold ${cBody}`}>{tip.tip}</p>
-                  <div className={`text-[10px] font-num font-bold ${cMuted}`}>
-                    Historical Accuracy: <strong className="text-sky-600 dark:text-sky-400 font-black">{tip.accuracy}</strong>
+                  <p className={`text-xs leading-relaxed font-sans font-semibold ${theme.t2}`}>{tip.tip}</p>
+                  <div className={`text-[10px] font-num font-bold ${theme.t3}`}>
+                    Historical Accuracy: <strong className="text-sky-500 font-black">{tip.accuracy}</strong>
                   </div>
                 </div>
               ))}
@@ -1264,7 +1246,7 @@ export default function NafaXTerminal() {
       {showAveragingModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`rounded-2xl border shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 ${
-            isDark ? 'bg-[#101626] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#0f172a]'
+            isDark ? 'bg-[#0e1320] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
           }`}>
             
             <div className={`flex justify-between items-center border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
@@ -1273,14 +1255,14 @@ export default function NafaXTerminal() {
                   ⚡
                 </div>
                 <div>
-                  <h3 className={`text-base font-black ${cTitle}`}>Smart Cost-Averaging Desk</h3>
-                  <p className={`text-xs ${cMuted}`}>Live PSX Price Down/Up Averaging Engine</p>
+                  <h3 className={`text-base font-black ${theme.t1}`}>Smart Cost-Averaging Desk</h3>
+                  <p className={`text-xs ${theme.t3}`}>Live PSX Price Down/Up Averaging Engine</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAveragingModal(false)}
                 className={`w-8 h-8 rounded-full text-sm font-black flex items-center justify-center transition ${
-                  isDark ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-[#0f172a]'
+                  isDark ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
                 }`}
               >
                 ✕
@@ -1289,42 +1271,42 @@ export default function NafaXTerminal() {
 
             {/* Selected Asset Header */}
             <div className={`p-3 rounded-xl border flex justify-between items-center font-num ${
-              isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#e0f2fe] border-sky-300'
+              isDark ? 'bg-[#151c2e] border-slate-800' : 'bg-sky-50 border-sky-300'
             }`}>
               <div>
-                <span className={`text-xs font-black block ${cTitle}`}>{selectedStock.symbol} — {selectedStock.name}</span>
-                <span className={`text-[10px] font-bold ${cMuted}`}>Execution on Pakistan Stock Exchange</span>
+                <span className={`text-xs font-black block ${theme.t1}`}>{selectedStock.symbol} — {selectedStock.name}</span>
+                <span className={`text-[10px] font-bold ${theme.t3}`}>Execution on Pakistan Stock Exchange</span>
               </div>
               <div className="text-right">
-                <span className={`text-xs font-bold block ${cMuted}`}>Live Closing Rate</span>
-                <span className="text-base font-black text-sky-700 dark:text-sky-400">PKR {selectedStock.price.toFixed(2)}</span>
+                <span className={`text-xs font-bold block ${theme.t3}`}>Live Closing Rate</span>
+                <span className="text-base font-black text-sky-500">PKR {selectedStock.price.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Inputs */}
             <div className="space-y-3">
               <div>
-                <span className={`text-xs font-black block uppercase tracking-wide ${cTitle}`}>1. Existing Holding</span>
+                <span className={`text-xs font-black block uppercase tracking-wide ${theme.t1}`}>1. Existing Holding</span>
                 <div className="grid grid-cols-2 gap-3 mt-1 font-num">
                   <div>
-                    <label className={`text-[10px] font-bold ${cMuted}`}>Shares Count</label>
+                    <label className={`text-[10px] font-bold ${theme.t3}`}>Shares Count</label>
                     <input
                       type="number"
                       value={holdingQty}
                       onChange={(e) => setHoldingQty(e.target.value)}
                       className={`w-full border rounded-lg p-2 text-xs font-black outline-none focus:border-sky-500 ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                        isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
                       }`}
                     />
                   </div>
                   <div>
-                    <label className={`text-[10px] font-bold ${cMuted}`}>Avg Purchase Price (PKR)</label>
+                    <label className={`text-[10px] font-bold ${theme.t3}`}>Avg Purchase Price (PKR)</label>
                     <input
                       type="number"
                       value={holdingPrice}
                       onChange={(e) => setHoldingPrice(e.target.value)}
                       className={`w-full border rounded-lg p-2 text-xs font-black outline-none focus:border-sky-500 ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                        isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
                       }`}
                     />
                   </div>
@@ -1332,17 +1314,17 @@ export default function NafaXTerminal() {
               </div>
 
               <div>
-                <span className={`text-xs font-black block uppercase tracking-wide ${cTitle}`}>2. Planned Order</span>
-                <div className={`grid grid-cols-2 gap-2 mt-1 p-1 rounded-lg text-xs font-black ${isDark ? 'bg-slate-900' : 'bg-slate-100 border border-slate-300'}`}>
+                <span className={`text-xs font-black block uppercase tracking-wide ${theme.t1}`}>2. Planned Order</span>
+                <div className={`grid grid-cols-2 gap-2 mt-1 p-1 rounded-lg text-xs font-black ${isDark ? 'bg-[#151c2e]' : 'bg-slate-100 border border-slate-300'}`}>
                   <button
                     onClick={() => setOrderType('market')}
-                    className={`py-1.5 rounded transition ${orderType === 'market' ? 'bg-sky-500 text-white font-black shadow-sm' : isDark ? 'text-slate-400' : 'text-[#0f172a]'}`}
+                    className={`py-1.5 rounded transition ${orderType === 'market' ? 'bg-sky-500 text-white font-black shadow-sm' : theme.t3}`}
                   >
                     ⚡ Market (PKR {selectedStock.price.toFixed(2)})
                   </button>
                   <button
                     onClick={() => setOrderType('limit')}
-                    className={`py-1.5 rounded transition ${orderType === 'limit' ? 'bg-sky-500 text-white font-black shadow-sm' : isDark ? 'text-slate-400' : 'text-[#0f172a]'}`}
+                    className={`py-1.5 rounded transition ${orderType === 'limit' ? 'bg-sky-500 text-white font-black shadow-sm' : theme.t3}`}
                   >
                     🎯 Limit Bid
                   </button>
@@ -1350,35 +1332,35 @@ export default function NafaXTerminal() {
               </div>
 
               {orderType === 'limit' && (
-                <div className="bg-sky-100 border border-sky-300 dark:bg-sky-950/30 dark:border-sky-800 p-2.5 rounded-lg font-num">
-                  <label className="text-[10px] font-black text-sky-900 dark:text-sky-300 uppercase block">Your Target Limit Price (PKR)</label>
+                <div className="bg-sky-500/10 border border-sky-500/30 p-2.5 rounded-lg font-num">
+                  <label className="text-[10px] font-black text-sky-500 uppercase block">Your Target Limit Price (PKR)</label>
                   <input
                     type="number"
                     value={limitBid}
                     onChange={(e) => setLimitBid(e.target.value)}
                     className={`w-full border rounded p-1.5 mt-0.5 text-xs font-black outline-none ${
-                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-[#0f172a]'
+                      isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
                     }`}
                   />
                 </div>
               )}
 
               <div className="font-num">
-                <span className={`text-xs font-black block uppercase tracking-wide ${cTitle}`}>3. New Shares to Buy</span>
+                <span className={`text-xs font-black block uppercase tracking-wide ${theme.t1}`}>3. New Shares to Buy</span>
                 <input
                   type="number"
                   value={orderShares}
                   onChange={(e) => setOrderShares(e.target.value)}
                   className={`w-full border rounded-lg p-2 mt-1 text-xs font-black outline-none focus:border-sky-500 ${
-                    isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-[#0f172a]'
+                    isDark ? 'bg-[#090d16] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
                   }`}
                 />
               </div>
 
-              <div className={`flex items-center justify-between p-2.5 rounded-lg border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <div className={`flex items-center justify-between p-2.5 rounded-lg border ${isDark ? 'bg-[#151c2e] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 <div>
-                  <span className={`text-xs font-black block ${cTitle}`}>Apply PSX Charges (+0.18%)</span>
-                  <span className={`text-[10px] font-medium ${cMuted}`}>CDC, SECP, CVT & Broker Commission</span>
+                  <span className={`text-xs font-black block ${theme.t1}`}>Apply PSX Charges (+0.18%)</span>
+                  <span className={`text-[10px] font-medium ${theme.t3}`}>CDC, SECP, CVT & Broker Commission</span>
                 </div>
                 <input
                   type="checkbox"
@@ -1391,20 +1373,22 @@ export default function NafaXTerminal() {
 
             {/* Resulting Average Cost Output */}
             <div className={`border rounded-xl p-4 space-y-2 text-xs font-num ${
-              isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#e0f2fe]/60 border-sky-300'
+              isDark ? 'bg-[#151c2e] border-slate-800' : 'bg-sky-50 border-sky-200'
             }`}>
-              <div className={`flex justify-between font-bold ${cMuted}`}>
+              <div className={`flex justify-between font-bold ${theme.t3}`}>
                 <span>Total Capital Required:</span>
-                <span className={`font-black ${cTitle}`}>PKR {capitalReq.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className={`font-black ${theme.t1}`}>PKR {capitalReq.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
-              <div className={`flex justify-between font-bold ${cMuted}`}>
+              <div className={`flex justify-between font-bold ${theme.t3}`}>
                 <span>Final Portfolio Shares:</span>
-                <span className={`font-black ${cTitle}`}>{finalShares} shares</span>
+                <span className={`font-black ${theme.t1}`}>{finalShares} shares</span>
               </div>
 
-              <div className="border-2 border-sky-500 p-4 rounded-xl text-center mt-3 shadow-sm bg-white dark:bg-sky-950/40">
-                <span className="text-[10px] font-black uppercase text-sky-700 dark:text-sky-400 tracking-wider block">Projected New Average Price</span>
-                <div className={`text-3xl font-black mt-1 ${cTitle}`}>
+              <div className={`border-2 border-sky-500 p-4 rounded-xl text-center mt-3 shadow-sm ${
+                isDark ? 'bg-[#0e1320]' : 'bg-white'
+              }`}>
+                <span className="text-[10px] font-black uppercase text-sky-500 tracking-wider block">Projected New Average Price</span>
+                <div className={`text-3xl font-black mt-1 ${theme.t1}`}>
                   PKR {newAvg.toFixed(2)}
                 </div>
                 {ePrice > 0 && nQty > 0 && (
@@ -1420,10 +1404,10 @@ export default function NafaXTerminal() {
       )}
 
       {/* 5. FOOTER */}
-      <footer className={`w-full border-t px-6 py-10 mt-12 text-xs ${isDark ? 'bg-[#0a0e17] border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-[#1e293b]'}`}>
+      <footer className={`w-full border-t px-6 py-10 mt-12 text-xs ${isDark ? 'bg-[#090d16] border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
         <div className="max-w-[1800px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 font-num">
           <div>
-            <span className={`font-black text-sm block ${cTitle}`}>NAFAX TERMINAL PAKISTAN</span>
+            <span className={`font-black text-sm block ${theme.t1}`}>NAFAX TERMINAL PAKISTAN</span>
             <span className="font-semibold">Real-time Pakistan Stock Exchange (PSX) DPS Feed, Paper Trading & Cost-Averaging Engine.</span>
           </div>
           <div className="flex gap-4 font-black">
