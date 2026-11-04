@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "NafaX Terminal | Pakistan Stock Exchange Intelligence",
-  description: "TradingView-grade PSX Screener, Smart Averaging & Real-time Market Intelligence",
+  title: "NafaX Terminal | Pakistan Stock Exchange Live Intelligence",
+  description: "TradingView-Grade PSX Trading Suite, Cost-Averaging Desk & Real-time Market Intelligence",
 };
 
 export default function RootLayout({
@@ -13,17 +13,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Fonts: Plus Jakarta Sans for UI + JetBrains Mono for financial figures */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
         <script src="https://cdn.tailwindcss.com"></script>
         <style>{`
           body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
           }
           .font-num {
             font-family: 'JetBrains Mono', monospace;
@@ -31,7 +30,7 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      <body className="bg-[#090705] text-stone-200 min-h-screen antialiased selection:bg-orange-500 selection:text-white">
+      <body className="bg-[#080c14] text-slate-100 min-h-screen antialiased selection:bg-lime-400 selection:text-black">
         {children}
       </body>
     </html>
