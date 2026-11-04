@@ -13,6 +13,12 @@
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
+  "dependencies": {
+    "next": "16.4.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "lightweight-charts": "^4.2.0"
+  },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
