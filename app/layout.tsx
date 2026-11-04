@@ -26,7 +26,7 @@ export default function RootLayout({
             font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
             margin: 0;
             padding: 0;
-            width: 100%;
+            width: 75%;
           }
           .font-num {
             font-family: 'JetBrains Mono', -apple-system, monospace;
