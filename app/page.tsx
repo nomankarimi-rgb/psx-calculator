@@ -1,260 +1,76 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createChart, IChartApi, ISeriesApi } from 'lightweight-charts';
 
-// Comprehensive PSX Stock Universe (KSE-100, KMI-30, Energy, Tech, Banking, Fertilizer, Cement)
-const PSX_STOCKS = [
+// Full PSX Multi-Sector List
+const PSX_UNIVERSE = [
   // Oil & Gas / Energy
-  { symbol: 'OGDC', name: 'Oil & Gas Dev Co', price: 172.40, change: +3.85, category: 'KSE100', shariah: true, history: [162, 164, 163, 167, 169, 172.4] },
-  { symbol: 'PPL', name: 'Pak Petroleum Ltd', price: 124.60, change: +2.15, category: 'KSE100', shariah: true, history: [120, 121, 122, 123, 122.5, 124.6] },
-  { symbol: 'PSO', name: 'Pak State Oil', price: 218.30, change: -1.75, category: 'KSE100', shariah: false, history: [224, 222, 221, 220, 219, 218.3] },
-  { symbol: 'HUBC', name: 'Hub Power Co', price: 144.50, change: +4.20, category: 'KMI30', shariah: true, history: [137, 139, 140, 141, 142.5, 144.5] },
-  { symbol: 'PRL', name: 'Pakistan Refinery', price: 29.80, change: +5.30, category: 'KSE100', shariah: true, history: [27, 27.5, 28, 28.5, 29.1, 29.8] },
-  { symbol: 'SNGP', name: 'Sui Northern Gas', price: 74.20, change: +1.60, category: 'KSE100', shariah: false, history: [71, 72, 72.8, 73, 73.5, 74.2] },
+  { symbol: 'OGDC', name: 'Oil & Gas Dev Co', sector: 'Oil & Gas', pe: 4.8, mktCap: '745B', shariah: true, price: 174.50, change: +3.85 },
+  { symbol: 'PPL', name: 'Pak Petroleum Ltd', sector: 'Oil & Gas', pe: 5.2, mktCap: '340B', shariah: true, price: 126.20, change: +2.15 },
+  { symbol: 'PSO', name: 'Pak State Oil', sector: 'Oil & Gas', pe: 6.1, mktCap: '102B', shariah: false, price: 218.30, change: -1.75 },
+  { symbol: 'MARI', name: 'Mari Energies Ltd', sector: 'Oil & Gas', pe: 7.9, mktCap: '420B', shariah: true, price: 2840.00, change: +4.10 },
+  { symbol: 'HUBC', name: 'Hub Power Company', sector: 'Power Gen', pe: 4.5, mktCap: '185B', shariah: true, price: 146.20, change: +4.20 },
+  { symbol: 'PRL', name: 'Pak Refinery Ltd', sector: 'Refinery', pe: 3.9, mktCap: '35B', shariah: true, price: 30.15, change: +5.30 },
 
-  // Technology
-  { symbol: 'SYS', name: 'Systems Limited', price: 448.00, change: -2.30, category: 'KMI30', shariah: true, history: [460, 458, 455, 452, 450, 448] },
-  { symbol: 'TRG', name: 'TRG Pakistan', price: 59.20, change: -3.60, category: 'KSE100', shariah: false, history: [63, 62, 61, 60.5, 60, 59.2] },
-  { symbol: 'AIRLINK', name: 'Air Link Communication', price: 112.50, change: +3.20, category: 'KMI30', shariah: true, history: [106, 107, 108, 109, 111, 112.5] },
-  { symbol: 'NETSOL', name: 'NetSol Technologies', price: 118.00, change: +0.80, category: 'KSE100', shariah: true, history: [115, 116, 115.5, 117, 117.2, 118] },
+  // Tech & Telecom
+  { symbol: 'SYS', name: 'Systems Limited', sector: 'Technology', pe: 14.5, mktCap: '128B', shariah: true, price: 452.00, change: -2.30 },
+  { symbol: 'TRG', name: 'TRG Pakistan Ltd', sector: 'Technology', pe: 8.2, mktCap: '32B', shariah: false, price: 59.80, change: -3.60 },
+  { symbol: 'AIRLINK', name: 'Air Link Communication', sector: 'Technology', pe: 11.0, mktCap: '44B', shariah: true, price: 114.50, change: +3.20 },
+  { symbol: 'WTL', name: 'WorldCall Telecom', sector: 'Telecom', pe: 2.1, mktCap: '6B', shariah: false, price: 1.39, change: +0.00 },
 
   // Banking
-  { symbol: 'MEBL', name: 'Meezan Bank Ltd', price: 232.00, change: +1.95, category: 'KMI30', shariah: true, history: [225, 226, 228, 229, 230, 232] },
-  { symbol: 'HBL', name: 'Habib Bank Ltd', price: 131.50, change: -0.85, category: 'KSE100', shariah: false, history: [134, 133, 132.5, 132, 131.8, 131.5] },
-  { symbol: 'UBL', name: 'United Bank Ltd', price: 285.00, change: +2.10, category: 'KSE100', shariah: false, history: [278, 279, 281, 282, 283, 285] },
-  { symbol: 'MCB', name: 'MCB Bank Limited', price: 228.40, change: +0.40, category: 'KSE100', shariah: false, history: [226, 227, 227.5, 228, 228, 228.4] },
+  { symbol: 'MEBL', name: 'Meezan Bank Ltd', sector: 'Islamic Bank', pe: 5.6, mktCap: '410B', shariah: true, price: 236.00, change: +1.95 },
+  { symbol: 'HBL', name: 'Habib Bank Limited', sector: 'Banking', pe: 4.2, mktCap: '190B', shariah: false, price: 132.50, change: -0.85 },
+  { symbol: 'MCB', name: 'MCB Bank Limited', sector: 'Banking', pe: 5.1, mktCap: '270B', shariah: false, price: 229.40, change: +0.40 },
+  { symbol: 'UBL', name: 'United Bank Limited', sector: 'Banking', pe: 4.9, mktCap: '345B', shariah: false, price: 288.00, change: +2.10 },
 
-  // Cement
-  { symbol: 'LUCK', name: 'Lucky Cement', price: 925.00, change: +2.80, category: 'KMI30', shariah: true, history: [890, 895, 905, 912, 918, 925] },
-  { symbol: 'DGKC', name: 'D.G. Khan Cement', price: 84.50, change: +1.70, category: 'KSE100', shariah: true, history: [81, 82, 82.5, 83, 83.8, 84.5] },
-  { symbol: 'MLCF', name: 'Maple Leaf Cement', price: 41.20, change: -1.40, category: 'KSE100', shariah: true, history: [42.5, 42.2, 41.8, 41.6, 41.4, 41.2] },
-  { symbol: 'CHCC', name: 'Cherat Cement', price: 178.00, change: +3.10, category: 'KMI30', shariah: true, history: [170, 172, 174, 175, 176, 178] },
-
-  // Fertilizers & Chemicals
-  { symbol: 'ENGRO', name: 'Engro Corporation', price: 345.00, change: +1.20, category: 'KMI30', shariah: true, history: [338, 340, 341, 342, 343, 345] },
-  { symbol: 'FFC', name: 'Fauji Fertilizer Co', price: 202.50, change: +0.65, category: 'KSE100', shariah: true, history: [199, 200, 201, 200.5, 201.8, 202.5] },
-  { symbol: 'EFERT', name: 'Engro Fertilizers', price: 168.00, change: -0.50, category: 'KMI30', shariah: true, history: [170, 169.5, 169, 168.8, 168.2, 168] },
-  { symbol: 'FATIMA', name: 'Fatima Fertilizer', price: 54.00, change: +0.20, category: 'KSE100', shariah: true, history: [53, 53.5, 53.8, 53.7, 53.9, 54] },
-
-  // Automobiles & Industrials
-  { symbol: 'INDU', name: 'Indus Motor Co', price: 1620.00, change: +4.50, category: 'KMI30', shariah: true, history: [1540, 1560, 1580, 1595, 1605, 1620] },
-  { symbol: 'MTL', name: 'Millat Tractors', price: 615.00, change: -1.80, category: 'KMI30', shariah: true, history: [630, 626, 622, 620, 618, 615] },
-  { symbol: 'PAEL', name: 'Pak Elektron Ltd', price: 26.10, change: +2.90, category: 'KSE100', shariah: false, history: [24.8, 25.1, 25.4, 25.6, 25.8, 26.1] },
-
-  // Telecommunication & Power
-  { symbol: 'KEL', name: 'K-Electric Limited', price: 4.95, change: +3.10, category: 'KSE100', shariah: false, history: [4.7, 4.75, 4.8, 4.85, 4.9, 4.95] },
-  { symbol: 'PTC', name: 'Pak Telecom Co', price: 14.80, change: -0.90, category: 'KSE100', shariah: false, history: [15.2, 15.1, 15.0, 14.95, 14.85, 14.8] },
-  { symbol: 'WTL', name: 'WorldCall Telecom', price: 1.38, change: +0.00, category: 'KSE100', shariah: false, history: [1.38, 1.37, 1.39, 1.38, 1.37, 1.38] },
+  // Cement & Fertilizer
+  { symbol: 'LUCK', name: 'Lucky Cement Ltd', sector: 'Cement', pe: 8.4, mktCap: '290B', shariah: true, price: 935.00, change: +2.80 },
+  { symbol: 'DGKC', name: 'D.G. Khan Cement', sector: 'Cement', pe: 6.8, mktCap: '37B', shariah: true, price: 85.50, change: +1.70 },
+  { symbol: 'ENGRO', name: 'Engro Corporation', sector: 'Fertilizer', pe: 6.3, mktCap: '188B', shariah: true, price: 348.00, change: +1.20 },
+  { symbol: 'FFC', name: 'Fauji Fertilizer Co', sector: 'Fertilizer', pe: 5.8, mktCap: '260B', shariah: true, price: 204.50, change: +0.65 },
 ];
 
-// Mini Sparkline Graph for Right Panel
-function MiniSparkline({ data, isPositive }: { data: number[]; isPositive: boolean }) {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const width = 56;
-  const height = 20;
+const MARKET_NEWS = [
+  { id: 1, title: 'PSX sets historical milestone as KSE-100 rallies past resistance with heavy corporate buying', time: '10m ago', category: 'Equities' },
+  { id: 2, title: 'OGDC & PPL joint offshore survey reaches phase-2 appraisal with commercial reserves', time: '35m ago', category: 'Energy' },
+  { id: 3, title: 'Meezan Bank records record quarterly asset surge driven by trade finance expansion', time: '2h ago', category: 'Banking' },
+  { id: 4, title: 'SBP reserves hit multi-month peak; market liquidity bolsters dividend expectations', time: '4h ago', category: 'Economy' },
+];
 
-  const points = data
-    .map((val, idx) => {
-      const x = (idx / (data.length - 1)) * width;
-      const y = height - ((val - min) / range) * (height - 4) - 2;
-      return `${x},${y}`;
-    })
-    .join(' ');
+export default function NafaXTerminal() {
+  const [selectedSymbol, setSelectedSymbol] = useState('OGDC');
+  const [stockData, setStockData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const strokeColor = isPositive ? '#10b981' : '#f43f5e';
+  // Chart References & State
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const [chartMode, setChartMode] = useState<'candles' | 'area'>('candles');
 
-  return (
-    <svg width={width} height={height} className="overflow-visible">
-      <polyline fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points={points} />
-    </svg>
-  );
-}
-
-// Center TradingView Style Interactive Canvas / SVG Chart
-function TradingViewChart({
-  symbol,
-  history,
-  isPositive,
-  timeframe,
-  setTimeframe,
-  chartType,
-  setChartType,
-}: {
-  symbol: string;
-  history: number[];
-  isPositive: boolean;
-  timeframe: string;
-  setTimeframe: (t: string) => void;
-  chartType: 'area' | 'candles';
-  setChartType: (t: 'area' | 'candles') => void;
-}) {
-  const min = Math.min(...history) * 0.985;
-  const max = Math.max(...history) * 1.015;
-  const range = max - min || 1;
-  const width = 800;
-  const height = 260;
-
-  const points = history
-    .map((val, idx) => {
-      const x = (idx / (history.length - 1)) * width;
-      const y = height - ((val - min) / range) * (height - 30) - 15;
-      return `${x},${y}`;
-    })
-    .join(' ');
-
-  const strokeColor = isPositive ? '#10b981' : '#f43f5e';
-  const areaPoints = `${points} ${width},${height} 0,${height}`;
-
-  // Fake candlestick representation
-  const candles = useMemo(() => {
-    return history.map((close, i) => {
-      const open = i === 0 ? close * 0.99 : history[i - 1];
-      const high = Math.max(open, close) * 1.008;
-      const low = Math.min(open, close) * 0.992;
-      return { open, close, high, low, isUp: close >= open };
-    });
-  }, [history]);
-
-  return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col space-y-4">
-      {/* Top Chart Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full animate-ping" style={{ backgroundColor: strokeColor }}></span>
-            <span className="text-lg font-black text-white tracking-wide">{symbol} / PKR</span>
-          </div>
-          <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono font-bold">PSX</span>
-        </div>
-
-        {/* Filters: Timeframe & Chart Style */}
-        <div className="flex items-center gap-2">
-          {/* Chart Type Toggle */}
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-            <button
-              onClick={() => setChartType('area')}
-              className={`px-3 py-1 rounded-lg transition ${chartType === 'area' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
-            >
-              📈 Line
-            </button>
-            <button
-              onClick={() => setChartType('candles')}
-              className={`px-3 py-1 rounded-lg transition ${chartType === 'candles' ? 'bg-slate-800 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
-            >
-              🕯️ Candles
-            </button>
-          </div>
-
-          {/* Timeframe Buttons */}
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-            {['1D', '1W', '1M', '1Y'].map((t) => (
-              <button
-                key={t}
-                onClick={() => setTimeframe(t)}
-                className={`px-2.5 py-1 rounded-lg transition ${timeframe === t ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chart Canvas Area */}
-      <div className="relative w-full h-[300px] bg-slate-950/80 rounded-xl p-3 border border-slate-800/60 overflow-hidden flex flex-col justify-between">
-        
-        {/* Price Levels Grid Lines */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 opacity-15">
-          <div className="border-b border-dashed border-slate-400 w-full"></div>
-          <div className="border-b border-dashed border-slate-400 w-full"></div>
-          <div className="border-b border-dashed border-slate-400 w-full"></div>
-          <div className="border-b border-dashed border-slate-400 w-full"></div>
-        </div>
-
-        {/* High / Low Level Labels */}
-        <div className="flex justify-between text-[11px] font-mono text-slate-400 z-10 px-2">
-          <span>High: <strong className="text-emerald-400">PKR {max.toFixed(2)}</strong></span>
-          <span>Low: <strong className="text-rose-400">PKR {min.toFixed(2)}</strong></span>
-        </div>
-
-        {/* Render Line / Area SVG */}
-        {chartType === 'area' ? (
-          <div className="w-full h-full flex items-center">
-            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[230px] overflow-visible">
-              <defs>
-                <linearGradient id="tradingGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={strokeColor} stopOpacity="0.35" />
-                  <stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              <polygon fill="url(#tradingGradient)" points={areaPoints} />
-              <polyline fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={points} />
-            </svg>
-          </div>
-        ) : (
-          /* Render Simulated Candlestick Bars */
-          <div className="w-full h-[230px] flex items-end justify-between px-4 z-10">
-            {candles.map((c, idx) => {
-              const bodyHeight = Math.max(8, ((Math.abs(c.close - c.open)) / range) * 180);
-              const wickHeight = ((c.high - c.low) / range) * 200;
-              return (
-                <div key={idx} className="flex flex-col items-center justify-center relative w-full h-full">
-                  <div className={`w-[2px] ${c.isUp ? 'bg-emerald-400' : 'bg-rose-400'}`} style={{ height: `${wickHeight}px` }}></div>
-                  <div
-                    className={`w-6 rounded-sm ${c.isUp ? 'bg-emerald-500' : 'bg-rose-500'} absolute shadow-sm`}
-                    style={{ height: `${bodyHeight}px` }}
-                  ></div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Bottom Time Axis */}
-        <div className="flex justify-between text-[10px] text-slate-500 font-mono z-10 border-t border-slate-900 pt-1">
-          <span>09:15 AM</span>
-          <span>11:00 AM</span>
-          <span>01:00 PM</span>
-          <span>02:30 PM</span>
-          <span>03:30 PM (Close)</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function StockAverageDashboard() {
-  const [symbol, setSymbol] = useState('OGDC');
-  const [livePrice, setLivePrice] = useState<number | null>(172.40);
-  const [loading, setLoading] = useState(false);
-  const [timeframe, setTimeframe] = useState('1D');
-  const [chartType, setChartType] = useState<'area' | 'candles'>('area');
-
-  // Market Watch Filter & Search
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'KSE100' | 'KMI30' | 'GAINERS' | 'LOSERS'>('ALL');
+  // Screener Filters
+  const [activeCategory, setActiveCategory] = useState<'ALL' | 'SHARIAH' | 'ENERGY' | 'TECH' | 'BANK'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Averaging Buy Desk Inputs
-  const [priceMode, setPriceMode] = useState<'live' | 'limit'>('live');
-  const [customLimitPrice, setCustomLimitPrice] = useState('');
+  // Averaging Desk Inputs
   const [existingQty, setExistingQty] = useState('');
   const [existingPrice, setExistingPrice] = useState('');
   const [newQty, setNewQty] = useState('');
+  const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
+  const [customPrice, setCustomPrice] = useState('');
   const [includeBrokerage, setIncludeBrokerage] = useState(true);
-  const BROKERAGE_PERCENTAGE = 0.0018;
 
-  // Real-time Fetcher
-  const fetchLivePrice = async (targetSymbol = symbol) => {
-    if (!targetSymbol) return;
+  // Tabs for Center Bottom
+  const [centerTab, setCenterTab] = useState<'news' | 'financials'>('news');
+
+  // Fetch real-time PSX data
+  const fetchData = async (sym: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/stock?symbol=${targetSymbol}`);
+      const res = await fetch(`/api/stock?symbol=${sym}`);
       const data = await res.json();
-      if (data.currentPrice) {
-        setLivePrice(data.currentPrice);
-      }
+      setStockData(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -263,331 +79,517 @@ export default function StockAverageDashboard() {
   };
 
   useEffect(() => {
-    fetchLivePrice(symbol);
-    const interval = setInterval(() => fetchLivePrice(symbol), 5000);
+    fetchData(selectedSymbol);
+    const interval = setInterval(() => fetchData(selectedSymbol), 10000);
     return () => clearInterval(interval);
-  }, [symbol]);
+  }, [selectedSymbol]);
 
-  // Click handler from Right Panel
-  const handleSelectStock = (stock: typeof PSX_STOCKS[0]) => {
-    setSymbol(stock.symbol);
-    setLivePrice(stock.price);
-    fetchLivePrice(stock.symbol);
-  };
+  // Amber / Warm Obsidian TradingView Chart Engine
+  useEffect(() => {
+    if (!chartContainerRef.current || !stockData?.candles || stockData.candles.length === 0) return;
 
-  // Find active stock object
-  const activeStock = PSX_STOCKS.find((s) => s.symbol === symbol) || {
-    symbol,
-    name: 'PSX Listed Company',
-    price: livePrice || 100,
-    change: +1.5,
-    history: [95, 96, 98, 97, 99, 100],
-  };
+    if (chartRef.current) {
+      chartRef.current.remove();
+    }
 
-  // Calculations
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: 380,
+      layout: {
+        background: { color: '#120d0b' },
+        textColor: '#a8a29e',
+      },
+      grid: {
+        vertLines: { color: 'rgba(249, 115, 22, 0.05)' },
+        horzLines: { color: 'rgba(249, 115, 22, 0.05)' },
+      },
+      crosshair: {
+        vertLine: { color: '#ea580c', width: 1, style: 2 },
+        horzLine: { color: '#ea580c', width: 1, style: 2 },
+      },
+      rightPriceScale: {
+        borderColor: '#291e18',
+      },
+      timeScale: {
+        borderColor: '#291e18',
+        timeVisible: true,
+      },
+    });
+
+    if (chartMode === 'candles') {
+      // Matches reference image: Bright Orange Bullish & Smoky Charcoal Bearish
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#f97316',
+        downColor: '#261c16',
+        borderUpColor: '#fb923c',
+        borderDownColor: '#78716c',
+        wickUpColor: '#f97316',
+        wickDownColor: '#78716c',
+      });
+      candleSeries.setData(stockData.candles);
+    } else {
+      const areaSeries = chart.addAreaSeries({
+        topColor: 'rgba(249, 115, 22, 0.45)',
+        bottomColor: 'rgba(249, 115, 22, 0.0)',
+        lineColor: '#f97316',
+        lineWidth: 2.5,
+      });
+      const areaData = stockData.candles.map((c: any) => ({ time: c.time, value: c.close }));
+      areaSeries.setData(areaData);
+    }
+
+    chart.timeScale().fitContent();
+    chartRef.current = chart;
+
+    const handleResize = () => {
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+      }
+    };
+  }, [stockData, chartMode]);
+
+  // Averaging Calculations
   const eQty = parseFloat(existingQty) || 0;
   const ePrice = parseFloat(existingPrice) || 0;
   const nQty = parseFloat(newQty) || 0;
+  const currentLive = stockData?.currentPrice || 174.50;
+  const executionPrice = orderType === 'limit' && customPrice ? parseFloat(customPrice) || 0 : currentLive;
 
-  const effectiveBuyPrice = priceMode === 'limit' && customLimitPrice ? parseFloat(customLimitPrice) || 0 : livePrice || 0;
-
-  const rawBuyCost = nQty * effectiveBuyPrice;
-  const brokerageCharges = includeBrokerage ? rawBuyCost * BROKERAGE_PERCENTAGE : 0;
-  const totalNewInvestment = rawBuyCost + brokerageCharges;
-
+  const rawCost = nQty * executionPrice;
+  const brokerage = includeBrokerage ? rawCost * 0.0018 : 0;
+  const totalRequiredCapital = rawCost + brokerage;
   const totalShares = eQty + nQty;
-  const existingInvestment = eQty * ePrice;
-  const newAveragePrice = totalShares > 0 ? (existingInvestment + totalNewInvestment) / totalShares : 0;
-  const avgDifference = ePrice > 0 ? newAveragePrice - ePrice : 0;
+  const newAverage = totalShares > 0 ? (eQty * ePrice + totalRequiredCapital) / totalShares : 0;
+  const delta = ePrice > 0 ? newAverage - ePrice : 0;
 
-  // Right Panel Stock Filtering Logic
+  // Filtered Screener List
   const filteredStocks = useMemo(() => {
-    return PSX_STOCKS.filter((stock) => {
-      const matchesSearch = stock.symbol.toLowerCase().includes(searchQuery.toLowerCase()) || stock.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-      if (!matchesSearch) return false;
-
-      if (activeCategory === 'ALL') return true;
-      if (activeCategory === 'KSE100') return stock.category === 'KSE100';
-      if (activeCategory === 'KMI30') return stock.category === 'KMI30';
-      if (activeCategory === 'GAINERS') return stock.change > 0;
-      if (activeCategory === 'LOSERS') return stock.change < 0;
-
+    return PSX_UNIVERSE.filter((s) => {
+      const match = s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) || s.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!match) return false;
+      if (activeCategory === 'SHARIAH') return s.shariah;
+      if (activeCategory === 'ENERGY') return s.sector.includes('Oil') || s.sector.includes('Power') || s.sector.includes('Refinery');
+      if (activeCategory === 'TECH') return s.sector === 'Technology' || s.sector === 'Telecom';
+      if (activeCategory === 'BANK') return s.sector.includes('Bank');
       return true;
     });
-  }, [activeCategory, searchQuery]);
+  }, [searchQuery, activeCategory]);
+
+  const activeStock = PSX_UNIVERSE.find((s) => s.symbol === selectedSymbol) || PSX_UNIVERSE[0];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-4 font-sans selection:bg-emerald-500 selection:text-black">
-      {/* Top Professional Ticker Header */}
-      <header className="bg-slate-900 border border-slate-800 rounded-2xl p-3 md:p-4 mb-4 flex flex-col md:flex-row justify-between items-center gap-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="bg-emerald-500 text-slate-950 font-black px-3 py-1.5 rounded-xl text-lg tracking-wider">
-            INVESTIFY <span className="text-white text-xs font-normal bg-slate-950 px-2 py-0.5 rounded ml-1">PRO</span>
+    <div className="min-h-screen bg-[#0c0908] text-stone-200 flex font-sans selection:bg-orange-500 selection:text-white relative overflow-x-hidden">
+      
+      {/* Background Ambient Warm Glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[350px] bg-gradient-to-br from-orange-600/10 via-amber-700/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-[500px] h-[400px] bg-gradient-to-tl from-amber-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+      {/* ================= LEFT SLIM NAVIGATION SIDEBAR (Inspired by Image 2 TradiX) ================= */}
+      <aside className="w-16 md:w-20 bg-[#120d0a]/90 border-r border-orange-500/10 flex flex-col justify-between items-center py-5 z-20 backdrop-blur-xl">
+        <div className="flex flex-col items-center gap-7">
+          {/* Logo Brand Icon */}
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-700 flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.4)] cursor-pointer">
+            <span className="font-black text-white text-lg tracking-tighter">NX</span>
           </div>
-          <div>
-            <h1 className="text-sm md:text-base font-extrabold text-white">Pakistan Stock Exchange Live Terminal</h1>
-            <p className="text-[11px] text-slate-400">Integrated Market Watch • KSE-100 • KMI-30 Shariah • Live Averaging Engine</p>
-          </div>
+
+          {/* Navigation Pill Icons */}
+          <nav className="flex flex-col gap-4 text-stone-400">
+            <button className="w-10 h-10 rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/30 flex items-center justify-center transition shadow-sm">
+              ⚡
+            </button>
+            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+              📊
+            </button>
+            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+              💼
+            </button>
+            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+              📰
+            </button>
+          </nav>
         </div>
 
-        {/* Global Market Overview Badges */}
-        <div className="flex items-center gap-3 overflow-x-auto text-xs font-mono">
-          <div className="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
-            <span className="text-slate-400 block text-[10px]">KSE-100 INDEX</span>
-            <span className="text-emerald-400 font-bold">170,068 ▲ +1.22%</span>
-          </div>
-          <div className="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
-            <span className="text-slate-400 block text-[10px]">KMI-30 (ISLAMIC)</span>
-            <span className="text-emerald-400 font-bold">22,157 ▲ +1.38%</span>
-          </div>
-          <div className="bg-slate-950 border border-emerald-500/40 px-3 py-1.5 rounded-xl">
-            <span className="text-slate-400 block text-[10px]">{symbol} LIVE TICK</span>
-            <span className="text-emerald-400 font-bold text-sm">PKR {livePrice ? livePrice.toFixed(2) : '---'}</span>
+        <div className="flex flex-col items-center gap-3 text-stone-500">
+          <div className="w-9 h-9 rounded-full bg-stone-900 border border-orange-500/20 flex items-center justify-center text-xs font-bold text-orange-400">
+            PK
           </div>
         </div>
-      </header>
+      </aside>
 
-      {/* 3-Column Trading Terminal Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* ================= MAIN CONTENT AREA ================= */}
+      <div className="flex-1 flex flex-col min-w-0 z-10">
         
-        {/* ================= LEFT COLUMN: SMART AVERAGING BUY DESK ================= */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <h2 className="text-sm font-black text-white flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                SMART AVERAGING DESK
-              </h2>
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40 font-mono">
-                {symbol}
+        {/* TOP BAR: Brand, Market State & Indices */}
+        <header className="border-b border-orange-500/10 bg-[#130e0c]/80 backdrop-blur-md px-5 py-3 flex flex-wrap justify-between items-center gap-3 text-xs sticky top-0 z-30">
+          <div className="flex items-center gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-black tracking-wide text-white">NAFAX <span className="text-orange-500 text-xs font-bold">TERMINAL</span></h1>
+                <span className="text-[10px] bg-orange-500/15 text-orange-400 border border-orange-500/25 px-2 py-0.5 rounded-full font-bold">
+                  PSX LIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-400">Pakistan Stock Exchange • Smart Averaging Intelligence</p>
+            </div>
+          </div>
+
+          {/* Market Status & Index Chips (Image 1 & 2 inspired) */}
+          <div className="flex items-center gap-3 font-mono text-[11px]">
+            <div className="bg-[#1c1511] border border-orange-500/15 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+              <span className="text-stone-400">MARKET:</span>
+              <span className={`font-bold ${stockData?.market?.isOpen ? 'text-emerald-400' : 'text-amber-500'}`}>
+                ● {stockData?.market?.status || 'Closed (Weekend)'}
               </span>
             </div>
 
-            {/* Step 1: Existing Holdings */}
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-300 block uppercase tracking-wider">1. Current Holding</label>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="bg-[#1c1511] border border-orange-500/15 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+              <span className="text-stone-400">KSE-100:</span>
+              <span className="text-white font-bold">{stockData?.kse100?.current ? stockData.kse100.current.toLocaleString() : '112,450'}</span>
+              <span className="text-orange-400 font-bold">▲ +845.60 (+0.76%)</span>
+            </div>
+
+            <div className="hidden sm:flex bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+              {selectedSymbol} PKR {currentLive.toFixed(2)}
+            </div>
+          </div>
+        </header>
+
+        {/* 3-COLUMN WORKSPACE */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3.5 p-3.5 overflow-hidden">
+          
+          {/* ================= COLUMN 1: LEFT SMART AVERAGING DESK ================= */}
+          <div className="lg:col-span-3 flex flex-col justify-between bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl space-y-4">
+            <div>
+              <div className="flex justify-between items-center border-b border-stone-800/80 pb-3">
                 <div>
-                  <span className="text-[11px] text-slate-400">Shares Owned</span>
+                  <h2 className="text-xs font-black uppercase text-white tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                    Smart Averaging Desk
+                  </h2>
+                  <span className="text-[10px] text-stone-400">Position Down-Averaging Tool</span>
+                </div>
+                <span className="text-xs font-bold font-mono text-orange-400 bg-orange-500/10 border border-orange-500/25 px-2.5 py-1 rounded-xl">
+                  {selectedSymbol}
+                </span>
+              </div>
+
+              {/* Form Controls */}
+              <div className="space-y-3.5 mt-4">
+                <div>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">1. Existing Holding</span>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div>
+                      <span className="text-[10px] text-stone-500">Shares Count</span>
+                      <input
+                        type="number"
+                        placeholder="e.g. 1000"
+                        value={existingQty}
+                        onChange={(e) => setExistingQty(e.target.value)}
+                        className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-stone-500">Avg Cost (PKR)</span>
+                      <input
+                        type="number"
+                        placeholder="e.g. 185.0"
+                        value={existingPrice}
+                        onChange={(e) => setExistingPrice(e.target.value)}
+                        className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live vs Limit Toggle */}
+                <div>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">2. Execution Type</span>
+                  <div className="grid grid-cols-2 gap-1.5 mt-1 bg-[#1a130f] p-1 rounded-xl border border-orange-500/10 text-xs font-bold">
+                    <button
+                      onClick={() => setOrderType('market')}
+                      className={`py-2 rounded-lg transition ${orderType === 'market' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                    >
+                      ⚡ Market Rate
+                    </button>
+                    <button
+                      onClick={() => setOrderType('limit')}
+                      className={`py-2 rounded-lg transition ${orderType === 'limit' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                    >
+                      🎯 Target Limit
+                    </button>
+                  </div>
+                </div>
+
+                {orderType === 'limit' && (
+                  <div className="bg-orange-500/10 border border-orange-500/30 p-2.5 rounded-xl">
+                    <label className="text-[10px] text-orange-400 font-bold block uppercase">Your Bid Limit (PKR)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 165"
+                      value={customPrice}
+                      onChange={(e) => setCustomPrice(e.target.value)}
+                      className="w-full bg-[#1a130f] border border-orange-500/20 rounded-lg p-2 mt-1 text-xs font-mono font-bold text-white outline-none focus:border-orange-400"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">3. New Shares to Add</span>
                   <input
                     type="number"
-                    placeholder="e.g. 1000"
-                    value={existingQty}
-                    onChange={(e) => setExistingQty(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 mt-1 text-sm font-bold text-white focus:border-emerald-500 outline-none font-mono"
+                    placeholder="e.g. 500"
+                    value={newQty}
+                    onChange={(e) => setNewQty(e.target.value)}
+                    className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 mt-1 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
                   />
                 </div>
-                <div>
-                  <span className="text-[11px] text-slate-400">Avg Buy Price (PKR)</span>
+
+                {/* Charges Toggle */}
+                <div className="flex items-center justify-between bg-[#1e1713] p-2.5 rounded-xl border border-orange-500/10">
+                  <div>
+                    <span className="text-[11px] text-stone-300 font-bold block">Include PSX Charges (+0.18%)</span>
+                    <span className="text-[9px] text-stone-500">Brokerage, CVT, CDC & SECP</span>
+                  </div>
                   <input
-                    type="number"
-                    placeholder="e.g. 180"
-                    value={existingPrice}
-                    onChange={(e) => setExistingPrice(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 mt-1 text-sm font-bold text-white focus:border-emerald-500 outline-none font-mono"
+                    type="checkbox"
+                    checked={includeBrokerage}
+                    onChange={(e) => setIncludeBrokerage(e.target.checked)}
+                    className="w-4 h-4 accent-orange-500 cursor-pointer"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Step 2: Planned Order Type */}
-            <div className="space-y-3 pt-2">
-              <label className="text-xs font-bold text-slate-300 block uppercase tracking-wider">2. Planned Buying Order</label>
-              
-              {/* Order Mode Toggle */}
-              <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-                <button
-                  type="button"
-                  onClick={() => setPriceMode('live')}
-                  className={`py-2 rounded-lg transition ${priceMode === 'live' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                >
-                  ⚡ Market Rate
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPriceMode('limit')}
-                  className={`py-2 rounded-lg transition ${priceMode === 'limit' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                >
-                  🎯 Limit Order
-                </button>
+            {/* Glowing Result Box (Warm Ember Aesthetics) */}
+            <div className="bg-[#1f1712] border border-orange-500/20 rounded-2xl p-4 space-y-2 text-xs shadow-inner">
+              <div className="flex justify-between py-1 border-b border-stone-800 text-stone-400">
+                <span>Total Capital Needed:</span>
+                <span className="font-mono font-bold text-amber-400">PKR {totalRequiredCapital.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
-
-              {priceMode === 'limit' && (
-                <div className="bg-slate-950 p-3 rounded-xl border border-amber-500/50">
-                  <span className="text-xs text-amber-400 font-bold block">Target Limit Price (PKR)</span>
-                  <input
-                    type="number"
-                    placeholder="e.g. 165"
-                    value={customLimitPrice}
-                    onChange={(e) => setCustomLimitPrice(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 mt-1 text-sm font-mono font-bold text-white outline-none focus:border-amber-400"
-                  />
-                </div>
-              )}
-
-              <div>
-                <span className="text-[11px] text-slate-400">Quantity To Buy</span>
-                <input
-                  type="number"
-                  placeholder="e.g. 500"
-                  value={newQty}
-                  onChange={(e) => setNewQty(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 mt-1 text-sm font-bold text-white focus:border-emerald-500 outline-none font-mono"
-                />
-              </div>
-
-              {/* Commission Toggle */}
-              <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <div>
-                  <span className="text-xs font-bold text-slate-300 block">Standard PSX Charges (+0.18%)</span>
-                  <span className="text-[10px] text-slate-500">Brokerage + SST + SECP + CDC</span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={includeBrokerage}
-                  onChange={(e) => setIncludeBrokerage(e.target.checked)}
-                  className="w-4 h-4 accent-emerald-500 cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Impact Calculation Preview */}
-            <div className="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-900 text-slate-400">
-                <span>Execution Price:</span>
-                <span className="font-mono font-bold text-emerald-400">PKR {effectiveBuyPrice.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-900 text-slate-400">
-                <span>Total Portfolio Shares:</span>
+              <div className="flex justify-between py-1 border-b border-stone-800 text-stone-400">
+                <span>Final Share Count:</span>
                 <span className="font-bold text-white">{totalShares} shares</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-900 text-slate-400">
-                <span>Capital Required:</span>
-                <span className="font-mono font-bold text-amber-400">PKR {totalNewInvestment.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-              </div>
 
-              {/* Big Result Box */}
-              <div className="bg-slate-900 border border-emerald-500/40 p-4 rounded-xl text-center mt-3">
-                <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Projected New Average</span>
+              {/* Big Highlight Glow */}
+              <div className="bg-gradient-to-br from-[#2a1c14] to-[#1a120c] border border-orange-500/40 p-4 rounded-xl text-center mt-3 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
+                <span className="text-[10px] font-black uppercase text-orange-400 tracking-widest block">Projected New Average</span>
                 <div className="text-3xl font-black font-mono text-white mt-1">
-                  PKR {newAveragePrice.toFixed(2)}
+                  PKR {newAverage.toFixed(2)}
                 </div>
                 {ePrice > 0 && nQty > 0 && (
-                  <p className={`text-xs mt-2 font-bold ${avgDifference < 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {avgDifference < 0 ? `📉 Averaged Down by PKR ${Math.abs(avgDifference).toFixed(2)} / share` : `📈 Averaged Up by PKR ${avgDifference.toFixed(2)} / share`}
-                  </p>
+                  <span className={`text-[11px] font-bold block mt-1.5 ${delta < 0 ? 'text-orange-400' : 'text-amber-300'}`}>
+                    {delta < 0 ? `📉 Averaged Down by PKR ${Math.abs(delta).toFixed(2)} per share` : `📈 Averaged Up by PKR ${delta.toFixed(2)} per share`}
+                  </span>
                 )}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ================= CENTER COLUMN: TRADINGVIEW INTERACTIVE CHART ================= */}
-        <div className="lg:col-span-5 space-y-4">
-          <TradingViewChart
-            symbol={symbol}
-            history={activeStock.history}
-            isPositive={activeStock.change >= 0}
-            timeframe={timeframe}
-            setTimeframe={setTimeframe}
-            chartType={chartType}
-            setChartType={setChartType}
-          />
-
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
-              <span className="text-[10px] text-slate-400 font-bold block uppercase">Day's Range</span>
-              <span className="text-xs font-mono font-bold text-white">
-                Rs {Math.min(...activeStock.history).toFixed(1)} - {Math.max(...activeStock.history).toFixed(1)}
-              </span>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
-              <span className="text-[10px] text-slate-400 font-bold block uppercase">24h Volatility</span>
-              <span className={`text-xs font-mono font-bold ${activeStock.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {activeStock.change >= 0 ? `+${activeStock.change}%` : `${activeStock.change}%`}
-              </span>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
-              <span className="text-[10px] text-slate-400 font-bold block uppercase">Compliance</span>
-              <span className="text-xs font-bold text-emerald-400">
-                {activeStock.shariah ? '✓ Shariah Compliant' : 'Conventional'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= RIGHT COLUMN: PSX MARKET WATCH (30+ EQUITIES) ================= */}
-        <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col space-y-3">
-          <div className="border-b border-slate-800 pb-3 space-y-2">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-                <span>📈</span> PSX Equities Watch
-              </h3>
-              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">
-                {filteredStocks.length}
-              </span>
-            </div>
-
-            {/* Search Input */}
-            <input
-              type="text"
-              placeholder="Search Symbol or Company..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500"
-            />
-
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-1 text-[10px] font-bold">
-              {(['ALL', 'KSE100', 'KMI30', 'GAINERS', 'LOSERS'] as const).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-2 py-1 rounded-md transition ${activeCategory === cat ? 'bg-emerald-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-white'}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Stock Tickers List */}
-          <div className="space-y-1.5 overflow-y-auto max-h-[640px] pr-1 scrollbar-thin scrollbar-thumb-slate-800">
-            {filteredStocks.map((stk) => {
-              const isSelected = stk.symbol === symbol;
-              const isGain = stk.change >= 0;
-
-              return (
-                <div
-                  key={stk.symbol}
-                  onClick={() => handleSelectStock(stk)}
-                  className={`p-2.5 rounded-xl border cursor-pointer transition flex items-center justify-between group ${
-                    isSelected ? 'bg-emerald-950/40 border-emerald-500/60 shadow-lg' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/60'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-extrabold text-xs text-white group-hover:text-emerald-400 transition">{stk.symbol}</span>
-                      {stk.shariah && <span className="text-[8px] bg-emerald-950 text-emerald-400 px-1 rounded font-black">KMI</span>}
-                    </div>
-                    <p className="text-[10px] text-slate-400 truncate max-w-[90px]">{stk.name}</p>
+          {/* ================= COLUMN 2: CENTER TRADINGVIEW EMBER CHART ================= */}
+          <div className="lg:col-span-6 flex flex-col space-y-3.5">
+            
+            {/* Chart Container */}
+            <div className="bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col">
+              
+              {/* Asset Header + Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-800/80 pb-3 mb-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-black text-white">{selectedSymbol}</h2>
+                    <span className="text-xs text-stone-400">{activeStock.name}</span>
+                    {activeStock.shariah && (
+                      <span className="text-[9px] bg-orange-500/15 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded font-bold">
+                        KMI Shariah
+                      </span>
+                    )}
                   </div>
 
-                  {/* Sparkline Graph */}
-                  <MiniSparkline data={stk.history} isPositive={isGain} />
-
-                  <div className="text-right">
-                    <span className="text-xs font-mono font-bold text-white block">Rs {stk.price.toFixed(1)}</span>
-                    <span className={`text-[10px] font-mono font-bold ${isGain ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {isGain ? `+${stk.change}%` : `${stk.change}%`}
+                  <div className="flex items-center gap-3 mt-1 font-mono text-xs">
+                    <span className="text-2xl font-black text-white">PKR {currentLive.toFixed(2)}</span>
+                    <span className="text-orange-400 font-bold">
+                      ▲ +{stockData?.change || activeStock.change} (+{stockData?.changePercent || 2.45}%)
                     </span>
                   </div>
                 </div>
-              );
-            })}
+
+                {/* Candles vs Area Switch (Reference style pill) */}
+                <div className="flex items-center gap-1.5 bg-[#1e1713] p-1 rounded-xl border border-orange-500/15 text-xs font-bold">
+                  <button
+                    onClick={() => setChartMode('candles')}
+                    className={`px-3 py-1.5 rounded-lg transition ${chartMode === 'candles' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                  >
+                    🕯️ Candles
+                  </button>
+                  <button
+                    onClick={() => setChartMode('area')}
+                    className={`px-3 py-1.5 rounded-lg transition ${chartMode === 'area' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                  >
+                    📈 Area Line
+                  </button>
+                </div>
+              </div>
+
+              {/* TradingView Canvas */}
+              <div ref={chartContainerRef} className="w-full rounded-2xl overflow-hidden min-h-[380px]"></div>
+
+              {/* Daily Stat Strip */}
+              <div className="grid grid-cols-4 gap-2 pt-3 border-t border-stone-800/80 text-center font-mono text-[11px]">
+                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                  <span className="text-stone-500 block text-[9px] uppercase">Open</span>
+                  <span className="font-bold text-white">PKR {stockData?.open || '171.0'}</span>
+                </div>
+                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                  <span className="text-stone-500 block text-[9px] uppercase">High</span>
+                  <span className="font-bold text-orange-400">PKR {stockData?.high || '175.5'}</span>
+                </div>
+                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                  <span className="text-stone-500 block text-[9px] uppercase">Low</span>
+                  <span className="font-bold text-stone-300">PKR {stockData?.low || '170.2'}</span>
+                </div>
+                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                  <span className="text-stone-500 block text-[9px] uppercase">Volume</span>
+                  <span className="font-bold text-white">{stockData?.volume ? stockData.volume.toLocaleString() : '12.4M'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: Market News & Fundamentals */}
+            <div className="bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex-1 flex flex-col">
+              <div className="flex gap-4 border-b border-stone-800 pb-2 mb-3 text-xs font-bold">
+                <button
+                  onClick={() => setCenterTab('news')}
+                  className={`pb-1 transition ${centerTab === 'news' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-stone-400 hover:text-white'}`}
+                >
+                  📰 PSX Intelligence & News
+                </button>
+                <button
+                  onClick={() => setCenterTab('financials')}
+                  className={`pb-1 transition ${centerTab === 'financials' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-stone-400 hover:text-white'}`}
+                >
+                  📊 Valuation & Fundamentals
+                </button>
+              </div>
+
+              {centerTab === 'news' ? (
+                <div className="space-y-2 overflow-y-auto max-h-[145px] pr-1">
+                  {MARKET_NEWS.map((n) => (
+                    <div key={n.id} className="p-2.5 rounded-xl bg-[#1e1713] border border-orange-500/10 flex justify-between items-center hover:border-orange-500/30 transition">
+                      <div>
+                        <p className="text-xs text-stone-200 font-semibold">{n.title}</p>
+                        <span className="text-[10px] text-stone-500">{n.time}</span>
+                      </div>
+                      <span className="text-[10px] bg-orange-500/15 text-orange-400 px-2 py-0.5 rounded font-mono font-bold">
+                        {n.category}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3 font-mono text-xs">
+                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
+                    <span className="text-stone-500 text-[10px] block uppercase">P/E Ratio</span>
+                    <span className="font-bold text-white text-base">{activeStock.pe}x</span>
+                  </div>
+                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
+                    <span className="text-stone-500 text-[10px] block uppercase">Market Cap</span>
+                    <span className="font-bold text-white text-base">PKR {activeStock.mktCap}</span>
+                  </div>
+                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
+                    <span className="text-stone-500 text-[10px] block uppercase">Sector Classification</span>
+                    <span className="font-bold text-orange-400 text-xs">{activeStock.sector}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* ================= COLUMN 3: RIGHT PSX MARKET WATCH ================= */}
+          <div className="lg:col-span-3 bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col space-y-3.5">
+            <div className="border-b border-stone-800 pb-3 space-y-2.5">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-orange-400">🔥</span> PSX Market Screener
+                </h3>
+                <span className="text-[10px] bg-[#1e1713] text-orange-400 px-2.5 py-0.5 rounded-full font-mono border border-orange-500/15">
+                  {filteredStocks.length}
+                </span>
+              </div>
+
+              {/* Search Bar */}
+              <input
+                type="text"
+                placeholder="Search PSX Stocks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 outline-none focus:border-orange-500 transition"
+              />
+
+              {/* Category Pills */}
+              <div className="flex flex-wrap gap-1 text-[10px] font-bold">
+                {(['ALL', 'SHARIAH', 'ENERGY', 'TECH', 'BANK'] as const).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-2.5 py-1 rounded-lg transition ${activeCategory === cat ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-sm' : 'bg-[#1e1713] text-stone-400 hover:text-white'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Screener Items List */}
+            <div className="space-y-1.5 overflow-y-auto max-h-[690px] pr-1">
+              {filteredStocks.map((stk) => {
+                const isSelected = stk.symbol === selectedSymbol;
+
+                return (
+                  <div
+                    key={stk.symbol}
+                    onClick={() => {
+                      setSelectedSymbol(stk.symbol);
+                      fetchData(stk.symbol);
+                    }}
+                    className={`p-2.5 rounded-2xl border cursor-pointer transition flex items-center justify-between group ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-600/10 border-orange-500/50 shadow-lg'
+                        : 'bg-[#1a130f] border-orange-500/5 hover:border-orange-500/25 hover:bg-[#201813]'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-black text-xs text-white group-hover:text-orange-400 transition">{stk.symbol}</span>
+                        {stk.shariah && (
+                          <span className="text-[8px] bg-orange-500/15 text-orange-400 px-1 py-0.2 rounded font-bold">
+                            KMI
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-stone-400 truncate max-w-[100px]">{stk.name}</p>
+                    </div>
+
+                    <div className="text-right font-mono">
+                      <span className="text-xs font-bold text-white block">PKR {stk.price.toFixed(1)}</span>
+                      <span className="text-[10px] font-bold text-orange-400">
+                        {stk.change >= 0 ? `+${stk.change}%` : `${stk.change}%`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
 
       </div>
