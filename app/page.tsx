@@ -1,31 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { createChart, IChartApi, ISeriesApi } from 'lightweight-charts';
+import React, { useState, useEffect, useMemo } from 'react';
 
-// Full PSX Multi-Sector List
 const PSX_UNIVERSE = [
-  // Oil & Gas / Energy
   { symbol: 'OGDC', name: 'Oil & Gas Dev Co', sector: 'Oil & Gas', pe: 4.8, mktCap: '745B', shariah: true, price: 174.50, change: +3.85 },
   { symbol: 'PPL', name: 'Pak Petroleum Ltd', sector: 'Oil & Gas', pe: 5.2, mktCap: '340B', shariah: true, price: 126.20, change: +2.15 },
   { symbol: 'PSO', name: 'Pak State Oil', sector: 'Oil & Gas', pe: 6.1, mktCap: '102B', shariah: false, price: 218.30, change: -1.75 },
   { symbol: 'MARI', name: 'Mari Energies Ltd', sector: 'Oil & Gas', pe: 7.9, mktCap: '420B', shariah: true, price: 2840.00, change: +4.10 },
   { symbol: 'HUBC', name: 'Hub Power Company', sector: 'Power Gen', pe: 4.5, mktCap: '185B', shariah: true, price: 146.20, change: +4.20 },
   { symbol: 'PRL', name: 'Pak Refinery Ltd', sector: 'Refinery', pe: 3.9, mktCap: '35B', shariah: true, price: 30.15, change: +5.30 },
-
-  // Tech & Telecom
   { symbol: 'SYS', name: 'Systems Limited', sector: 'Technology', pe: 14.5, mktCap: '128B', shariah: true, price: 452.00, change: -2.30 },
   { symbol: 'TRG', name: 'TRG Pakistan Ltd', sector: 'Technology', pe: 8.2, mktCap: '32B', shariah: false, price: 59.80, change: -3.60 },
   { symbol: 'AIRLINK', name: 'Air Link Communication', sector: 'Technology', pe: 11.0, mktCap: '44B', shariah: true, price: 114.50, change: +3.20 },
   { symbol: 'WTL', name: 'WorldCall Telecom', sector: 'Telecom', pe: 2.1, mktCap: '6B', shariah: false, price: 1.39, change: +0.00 },
-
-  // Banking
   { symbol: 'MEBL', name: 'Meezan Bank Ltd', sector: 'Islamic Bank', pe: 5.6, mktCap: '410B', shariah: true, price: 236.00, change: +1.95 },
   { symbol: 'HBL', name: 'Habib Bank Limited', sector: 'Banking', pe: 4.2, mktCap: '190B', shariah: false, price: 132.50, change: -0.85 },
   { symbol: 'MCB', name: 'MCB Bank Limited', sector: 'Banking', pe: 5.1, mktCap: '270B', shariah: false, price: 229.40, change: +0.40 },
   { symbol: 'UBL', name: 'United Bank Limited', sector: 'Banking', pe: 4.9, mktCap: '345B', shariah: false, price: 288.00, change: +2.10 },
-
-  // Cement & Fertilizer
   { symbol: 'LUCK', name: 'Lucky Cement Ltd', sector: 'Cement', pe: 8.4, mktCap: '290B', shariah: true, price: 935.00, change: +2.80 },
   { symbol: 'DGKC', name: 'D.G. Khan Cement', sector: 'Cement', pe: 6.8, mktCap: '37B', shariah: true, price: 85.50, change: +1.70 },
   { symbol: 'ENGRO', name: 'Engro Corporation', sector: 'Fertilizer', pe: 6.3, mktCap: '188B', shariah: true, price: 348.00, change: +1.20 },
@@ -33,20 +24,16 @@ const PSX_UNIVERSE = [
 ];
 
 const MARKET_NEWS = [
-  { id: 1, title: 'PSX sets historical milestone as KSE-100 rallies past resistance with heavy corporate buying', time: '10m ago', category: 'Equities' },
-  { id: 2, title: 'OGDC & PPL joint offshore survey reaches phase-2 appraisal with commercial reserves', time: '35m ago', category: 'Energy' },
+  { id: 1, title: 'PSX sets historical milestone as KSE-100 rallies past key resistance with corporate buying', time: '10m ago', category: 'Equities' },
+  { id: 2, title: 'OGDC & PPL joint exploration appraisal yields high-gravity hydrocarbon reservoir', time: '35m ago', category: 'Energy' },
   { id: 3, title: 'Meezan Bank records record quarterly asset surge driven by trade finance expansion', time: '2h ago', category: 'Banking' },
-  { id: 4, title: 'SBP reserves hit multi-month peak; market liquidity bolsters dividend expectations', time: '4h ago', category: 'Economy' },
+  { id: 4, title: 'SBP reserves maintain upward trajectory as export remittances bolster currency stability', time: '4h ago', category: 'Economy' },
 ];
 
 export default function NafaXTerminal() {
   const [selectedSymbol, setSelectedSymbol] = useState('OGDC');
   const [stockData, setStockData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Chart References & State
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
+  const [loading, setLoading] = useState(false);
   const [chartMode, setChartMode] = useState<'candles' | 'area'>('candles');
 
   // Screener Filters
@@ -61,10 +48,9 @@ export default function NafaXTerminal() {
   const [customPrice, setCustomPrice] = useState('');
   const [includeBrokerage, setIncludeBrokerage] = useState(true);
 
-  // Tabs for Center Bottom
+  // Tabs
   const [centerTab, setCenterTab] = useState<'news' | 'financials'>('news');
 
-  // Fetch real-time PSX data
   const fetchData = async (sym: string) => {
     try {
       setLoading(true);
@@ -72,7 +58,7 @@ export default function NafaXTerminal() {
       const data = await res.json();
       setStockData(data);
     } catch (err) {
-      console.error(err);
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -84,86 +70,14 @@ export default function NafaXTerminal() {
     return () => clearInterval(interval);
   }, [selectedSymbol]);
 
-  // Amber / Warm Obsidian TradingView Chart Engine
-  useEffect(() => {
-    if (!chartContainerRef.current || !stockData?.candles || stockData.candles.length === 0) return;
+  const activeStock = PSX_UNIVERSE.find((s) => s.symbol === selectedSymbol) || PSX_UNIVERSE[0];
+  const currentLive = stockData?.currentPrice || activeStock.price;
 
-    if (chartRef.current) {
-      chartRef.current.remove();
-    }
-
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: 380,
-      layout: {
-        background: { color: '#120d0b' },
-        textColor: '#a8a29e',
-      },
-      grid: {
-        vertLines: { color: 'rgba(249, 115, 22, 0.05)' },
-        horzLines: { color: 'rgba(249, 115, 22, 0.05)' },
-      },
-      crosshair: {
-        vertLine: { color: '#ea580c', width: 1, style: 2 },
-        horzLine: { color: '#ea580c', width: 1, style: 2 },
-      },
-      rightPriceScale: {
-        borderColor: '#291e18',
-      },
-      timeScale: {
-        borderColor: '#291e18',
-        timeVisible: true,
-      },
-    });
-
-    if (chartMode === 'candles') {
-      // Matches reference image: Bright Orange Bullish & Smoky Charcoal Bearish
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: '#f97316',
-        downColor: '#261c16',
-        borderUpColor: '#fb923c',
-        borderDownColor: '#78716c',
-        wickUpColor: '#f97316',
-        wickDownColor: '#78716c',
-      });
-      candleSeries.setData(stockData.candles);
-    } else {
-      const areaSeries = chart.addAreaSeries({
-        topColor: 'rgba(249, 115, 22, 0.45)',
-        bottomColor: 'rgba(249, 115, 22, 0.0)',
-        lineColor: '#f97316',
-        lineWidth: 2.5,
-      });
-      const areaData = stockData.candles.map((c: any) => ({ time: c.time, value: c.close }));
-      areaSeries.setData(areaData);
-    }
-
-    chart.timeScale().fitContent();
-    chartRef.current = chart;
-
-    const handleResize = () => {
-      if (chartContainerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-      }
-    };
-  }, [stockData, chartMode]);
-
-  // Averaging Calculations
+  // Averaging Logic
   const eQty = parseFloat(existingQty) || 0;
   const ePrice = parseFloat(existingPrice) || 0;
   const nQty = parseFloat(newQty) || 0;
-  const currentLive = stockData?.currentPrice || 174.50;
   const executionPrice = orderType === 'limit' && customPrice ? parseFloat(customPrice) || 0 : currentLive;
-
   const rawCost = nQty * executionPrice;
   const brokerage = includeBrokerage ? rawCost * 0.0018 : 0;
   const totalRequiredCapital = rawCost + brokerage;
@@ -171,7 +85,6 @@ export default function NafaXTerminal() {
   const newAverage = totalShares > 0 ? (eQty * ePrice + totalRequiredCapital) / totalShares : 0;
   const delta = ePrice > 0 ? newAverage - ePrice : 0;
 
-  // Filtered Screener List
   const filteredStocks = useMemo(() => {
     return PSX_UNIVERSE.filter((s) => {
       const match = s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) || s.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -184,108 +97,100 @@ export default function NafaXTerminal() {
     });
   }, [searchQuery, activeCategory]);
 
-  const activeStock = PSX_UNIVERSE.find((s) => s.symbol === selectedSymbol) || PSX_UNIVERSE[0];
+  // Chart Dimensions & Calculations
+  const candles = stockData?.candles || [];
+  const minPrice = candles.length > 0 ? Math.min(...candles.map((c: any) => c.low)) * 0.995 : 100;
+  const maxPrice = candles.length > 0 ? Math.max(...candles.map((c: any) => c.high)) * 1.005 : 200;
+  const priceRange = maxPrice - minPrice || 1;
 
   return (
-    <div className="min-h-screen bg-[#0c0908] text-stone-200 flex font-sans selection:bg-orange-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0705] text-stone-200 flex font-sans selection:bg-orange-500 selection:text-white">
       
-      {/* Background Ambient Warm Glows */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[350px] bg-gradient-to-br from-orange-600/10 via-amber-700/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-[500px] h-[400px] bg-gradient-to-tl from-amber-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-
-      {/* ================= LEFT SLIM NAVIGATION SIDEBAR (Inspired by Image 2 TradiX) ================= */}
-      <aside className="w-16 md:w-20 bg-[#120d0a]/90 border-r border-orange-500/10 flex flex-col justify-between items-center py-5 z-20 backdrop-blur-xl">
-        <div className="flex flex-col items-center gap-7">
-          {/* Logo Brand Icon */}
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-700 flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.4)] cursor-pointer">
-            <span className="font-black text-white text-lg tracking-tighter">NX</span>
+      {/* 1. SLIM FINTECH SIDEBAR */}
+      <aside className="w-14 md:w-16 bg-[#110c09] border-r border-orange-500/10 flex flex-col justify-between items-center py-4 z-20">
+        <div className="flex flex-col items-center gap-6">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-amber-700 flex items-center justify-center shadow-lg shadow-orange-500/20 cursor-pointer">
+            <span className="font-black text-white text-base">NX</span>
           </div>
 
-          {/* Navigation Pill Icons */}
-          <nav className="flex flex-col gap-4 text-stone-400">
-            <button className="w-10 h-10 rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/30 flex items-center justify-center transition shadow-sm">
+          <nav className="flex flex-col gap-3 text-stone-400">
+            <button className="w-9 h-9 rounded-lg bg-orange-500/15 text-orange-400 border border-orange-500/30 flex items-center justify-center text-sm">
               ⚡
             </button>
-            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+            <button className="w-9 h-9 rounded-lg hover:bg-stone-800/40 hover:text-white flex items-center justify-center text-sm transition">
               📊
             </button>
-            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+            <button className="w-9 h-9 rounded-lg hover:bg-stone-800/40 hover:text-white flex items-center justify-center text-sm transition">
               💼
             </button>
-            <button className="w-10 h-10 rounded-xl hover:bg-stone-800/50 hover:text-white flex items-center justify-center transition">
+            <button className="w-9 h-9 rounded-lg hover:bg-stone-800/40 hover:text-white flex items-center justify-center text-sm transition">
               📰
             </button>
           </nav>
         </div>
 
-        <div className="flex flex-col items-center gap-3 text-stone-500">
-          <div className="w-9 h-9 rounded-full bg-stone-900 border border-orange-500/20 flex items-center justify-center text-xs font-bold text-orange-400">
-            PK
-          </div>
+        <div className="w-8 h-8 rounded-lg bg-stone-900 border border-orange-500/20 flex items-center justify-center text-[10px] font-bold text-orange-400 font-mono">
+          PK
         </div>
       </aside>
 
-      {/* ================= MAIN CONTENT AREA ================= */}
-      <div className="flex-1 flex flex-col min-w-0 z-10">
+      {/* 2. WORKSPACE */}
+      <div className="flex-1 flex flex-col min-w-0">
         
-        {/* TOP BAR: Brand, Market State & Indices */}
-        <header className="border-b border-orange-500/10 bg-[#130e0c]/80 backdrop-blur-md px-5 py-3 flex flex-wrap justify-between items-center gap-3 text-xs sticky top-0 z-30">
-          <div className="flex items-center gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-black tracking-wide text-white">NAFAX <span className="text-orange-500 text-xs font-bold">TERMINAL</span></h1>
-                <span className="text-[10px] bg-orange-500/15 text-orange-400 border border-orange-500/25 px-2 py-0.5 rounded-full font-bold">
-                  PSX LIVE
-                </span>
-              </div>
-              <p className="text-[11px] text-stone-400">Pakistan Stock Exchange • Smart Averaging Intelligence</p>
-            </div>
-          </div>
-
-          {/* Market Status & Index Chips (Image 1 & 2 inspired) */}
-          <div className="flex items-center gap-3 font-mono text-[11px]">
-            <div className="bg-[#1c1511] border border-orange-500/15 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
-              <span className="text-stone-400">MARKET:</span>
-              <span className={`font-bold ${stockData?.market?.isOpen ? 'text-emerald-400' : 'text-amber-500'}`}>
-                ● {stockData?.market?.status || 'Closed (Weekend)'}
+        {/* TOP STATUS BAR */}
+        <header className="border-b border-orange-500/10 bg-[#100b08] px-4 py-2.5 flex flex-wrap justify-between items-center gap-3 text-xs sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-black tracking-wide text-white">NAFAX <span className="text-orange-500 font-bold">TERMINAL</span></h1>
+              <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded font-bold">
+                PSX ACTIVE
               </span>
             </div>
+            <span className="text-stone-500 hidden sm:inline">|</span>
+            <span className="text-[11px] text-stone-400 hidden sm:inline">Pakistan Stock Exchange Financial Suite</span>
+          </div>
 
-            <div className="bg-[#1c1511] border border-orange-500/15 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
-              <span className="text-stone-400">KSE-100:</span>
-              <span className="text-white font-bold">{stockData?.kse100?.current ? stockData.kse100.current.toLocaleString() : '112,450'}</span>
+          <div className="flex items-center gap-2.5 font-mono text-[11px]">
+            <div className="bg-[#17110d] border border-orange-500/10 px-2.5 py-1 rounded-md flex items-center gap-2">
+              <span className="text-stone-500">MARKET:</span>
+              <span className="font-bold text-amber-500">● {stockData?.market?.status || 'Closed'}</span>
+            </div>
+
+            <div className="bg-[#17110d] border border-orange-500/10 px-2.5 py-1 rounded-md flex items-center gap-2">
+              <span className="text-stone-500">KSE-100:</span>
+              <span className="text-white font-bold">{stockData?.kse100?.current?.toLocaleString() || '112,450'}</span>
               <span className="text-orange-400 font-bold">▲ +845.60 (+0.76%)</span>
             </div>
 
-            <div className="hidden sm:flex bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+            <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold px-3 py-1 rounded-md shadow-sm">
               {selectedSymbol} PKR {currentLive.toFixed(2)}
             </div>
           </div>
         </header>
 
-        {/* 3-COLUMN WORKSPACE */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3.5 p-3.5 overflow-hidden">
+        {/* 3-COLUMN LAYOUT */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 overflow-hidden">
           
-          {/* ================= COLUMN 1: LEFT SMART AVERAGING DESK ================= */}
-          <div className="lg:col-span-3 flex flex-col justify-between bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl space-y-4">
+          {/* ================= COLUMN 1: LEFT AVERAGING DESK ================= */}
+          <div className="lg:col-span-3 flex flex-col justify-between bg-[#130e0b] border border-orange-500/10 rounded-xl p-4 shadow-xl space-y-3">
             <div>
-              <div className="flex justify-between items-center border-b border-stone-800/80 pb-3">
+              <div className="flex justify-between items-center border-b border-stone-800/80 pb-2.5">
                 <div>
                   <h2 className="text-xs font-black uppercase text-white tracking-wider flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
-                    Smart Averaging Desk
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    Averaging & Buy Desk
                   </h2>
                   <span className="text-[10px] text-stone-400">Position Down-Averaging Tool</span>
                 </div>
-                <span className="text-xs font-bold font-mono text-orange-400 bg-orange-500/10 border border-orange-500/25 px-2.5 py-1 rounded-xl">
+                <span className="text-xs font-bold font-mono text-orange-400 bg-orange-500/10 border border-orange-500/25 px-2 py-0.5 rounded">
                   {selectedSymbol}
                 </span>
               </div>
 
-              {/* Form Controls */}
-              <div className="space-y-3.5 mt-4">
+              {/* Input Form */}
+              <div className="space-y-3 mt-3">
                 <div>
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">1. Existing Holding</span>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">1. Current Holding</span>
                   <div className="grid grid-cols-2 gap-2 mt-1">
                     <div>
                       <span className="text-[10px] text-stone-500">Shares Count</span>
@@ -294,7 +199,7 @@ export default function NafaXTerminal() {
                         placeholder="e.g. 1000"
                         value={existingQty}
                         onChange={(e) => setExistingQty(e.target.value)}
-                        className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
+                        className="w-full bg-[#1b140f] border border-orange-500/15 rounded-lg p-2 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
                       />
                     </div>
                     <div>
@@ -304,25 +209,25 @@ export default function NafaXTerminal() {
                         placeholder="e.g. 185.0"
                         value={existingPrice}
                         onChange={(e) => setExistingPrice(e.target.value)}
-                        className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
+                        className="w-full bg-[#1b140f] border border-orange-500/15 rounded-lg p-2 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Live vs Limit Toggle */}
+                {/* Execution Mode */}
                 <div>
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">2. Execution Type</span>
-                  <div className="grid grid-cols-2 gap-1.5 mt-1 bg-[#1a130f] p-1 rounded-xl border border-orange-500/10 text-xs font-bold">
+                  <div className="grid grid-cols-2 gap-1.5 mt-1 bg-[#17110d] p-1 rounded-lg border border-orange-500/10 text-xs font-bold">
                     <button
                       onClick={() => setOrderType('market')}
-                      className={`py-2 rounded-lg transition ${orderType === 'market' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                      className={`py-1.5 rounded-md transition ${orderType === 'market' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white' : 'text-stone-400 hover:text-white'}`}
                     >
                       ⚡ Market Rate
                     </button>
                     <button
                       onClick={() => setOrderType('limit')}
-                      className={`py-2 rounded-lg transition ${orderType === 'limit' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                      className={`py-1.5 rounded-md transition ${orderType === 'limit' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white' : 'text-stone-400 hover:text-white'}`}
                     >
                       🎯 Target Limit
                     </button>
@@ -330,14 +235,14 @@ export default function NafaXTerminal() {
                 </div>
 
                 {orderType === 'limit' && (
-                  <div className="bg-orange-500/10 border border-orange-500/30 p-2.5 rounded-xl">
+                  <div className="bg-orange-500/10 border border-orange-500/25 p-2 rounded-lg">
                     <label className="text-[10px] text-orange-400 font-bold block uppercase">Your Bid Limit (PKR)</label>
                     <input
                       type="number"
                       placeholder="e.g. 165"
                       value={customPrice}
                       onChange={(e) => setCustomPrice(e.target.value)}
-                      className="w-full bg-[#1a130f] border border-orange-500/20 rounded-lg p-2 mt-1 text-xs font-mono font-bold text-white outline-none focus:border-orange-400"
+                      className="w-full bg-[#17110d] border border-orange-500/20 rounded-md p-1.5 mt-1 text-xs font-mono font-bold text-white outline-none focus:border-orange-400"
                     />
                   </div>
                 )}
@@ -349,15 +254,14 @@ export default function NafaXTerminal() {
                     placeholder="e.g. 500"
                     value={newQty}
                     onChange={(e) => setNewQty(e.target.value)}
-                    className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl p-2.5 mt-1 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
+                    className="w-full bg-[#1b140f] border border-orange-500/15 rounded-lg p-2 text-xs font-mono font-bold text-white outline-none focus:border-orange-500 transition"
                   />
                 </div>
 
-                {/* Charges Toggle */}
-                <div className="flex items-center justify-between bg-[#1e1713] p-2.5 rounded-xl border border-orange-500/10">
+                <div className="flex items-center justify-between bg-[#1b140f] p-2 rounded-lg border border-orange-500/10">
                   <div>
-                    <span className="text-[11px] text-stone-300 font-bold block">Include PSX Charges (+0.18%)</span>
-                    <span className="text-[9px] text-stone-500">Brokerage, CVT, CDC & SECP</span>
+                    <span className="text-[11px] text-stone-300 font-bold block">PSX Charges (+0.18%)</span>
+                    <span className="text-[9px] text-stone-500">Brokerage, CVT, CDC, SECP</span>
                   </div>
                   <input
                     type="checkbox"
@@ -369,8 +273,8 @@ export default function NafaXTerminal() {
               </div>
             </div>
 
-            {/* Glowing Result Box (Warm Ember Aesthetics) */}
-            <div className="bg-[#1f1712] border border-orange-500/20 rounded-2xl p-4 space-y-2 text-xs shadow-inner">
+            {/* Sharp Glowing Output Box */}
+            <div className="bg-[#18110e] border border-orange-500/15 rounded-lg p-3 space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-stone-800 text-stone-400">
                 <span>Total Capital Needed:</span>
                 <span className="font-mono font-bold text-amber-400">PKR {totalRequiredCapital.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
@@ -380,35 +284,34 @@ export default function NafaXTerminal() {
                 <span className="font-bold text-white">{totalShares} shares</span>
               </div>
 
-              {/* Big Highlight Glow */}
-              <div className="bg-gradient-to-br from-[#2a1c14] to-[#1a120c] border border-orange-500/40 p-4 rounded-xl text-center mt-3 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
-                <span className="text-[10px] font-black uppercase text-orange-400 tracking-widest block">Projected New Average</span>
-                <div className="text-3xl font-black font-mono text-white mt-1">
+              <div className="bg-gradient-to-br from-[#231711] to-[#150f0c] border border-orange-500/30 p-3 rounded-md text-center mt-2 shadow-md">
+                <span className="text-[10px] font-black uppercase text-orange-400 tracking-wider block">Projected New Average</span>
+                <div className="text-2xl font-black font-mono text-white mt-1">
                   PKR {newAverage.toFixed(2)}
                 </div>
                 {ePrice > 0 && nQty > 0 && (
-                  <span className={`text-[11px] font-bold block mt-1.5 ${delta < 0 ? 'text-orange-400' : 'text-amber-300'}`}>
-                    {delta < 0 ? `📉 Averaged Down by PKR ${Math.abs(delta).toFixed(2)} per share` : `📈 Averaged Up by PKR ${delta.toFixed(2)} per share`}
+                  <span className={`text-[11px] font-bold block mt-1 ${delta < 0 ? 'text-orange-400' : 'text-amber-300'}`}>
+                    {delta < 0 ? `📉 Averaged Down by PKR ${Math.abs(delta).toFixed(2)}/sh` : `📈 Averaged Up by PKR ${delta.toFixed(2)}/sh`}
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ================= COLUMN 2: CENTER TRADINGVIEW EMBER CHART ================= */}
-          <div className="lg:col-span-6 flex flex-col space-y-3.5">
+          {/* ================= COLUMN 2: CENTER TRADINGVIEW ENGINE ================= */}
+          <div className="lg:col-span-6 flex flex-col space-y-3">
             
-            {/* Chart Container */}
-            <div className="bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col">
+            {/* Main Interactive Chart Card */}
+            <div className="bg-[#130e0b] border border-orange-500/10 rounded-xl p-4 shadow-xl flex flex-col">
               
-              {/* Asset Header + Controls */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-800/80 pb-3 mb-2">
+              {/* Header */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-800/80 pb-2.5 mb-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-black text-white">{selectedSymbol}</h2>
+                    <h2 className="text-xl font-black text-white">{selectedSymbol}</h2>
                     <span className="text-xs text-stone-400">{activeStock.name}</span>
                     {activeStock.shariah && (
-                      <span className="text-[9px] bg-orange-500/15 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded font-bold">
+                      <span className="text-[9px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-1.5 py-0.2 rounded font-bold">
                         KMI Shariah
                       </span>
                     )}
@@ -422,55 +325,127 @@ export default function NafaXTerminal() {
                   </div>
                 </div>
 
-                {/* Candles vs Area Switch (Reference style pill) */}
-                <div className="flex items-center gap-1.5 bg-[#1e1713] p-1 rounded-xl border border-orange-500/15 text-xs font-bold">
+                {/* Sleek Mode Switcher */}
+                <div className="flex items-center gap-1 bg-[#18110d] p-1 rounded-md border border-orange-500/10 text-xs font-bold">
                   <button
                     onClick={() => setChartMode('candles')}
-                    className={`px-3 py-1.5 rounded-lg transition ${chartMode === 'candles' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded transition ${chartMode === 'candles' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white' : 'text-stone-400 hover:text-white'}`}
                   >
                     🕯️ Candles
                   </button>
                   <button
                     onClick={() => setChartMode('area')}
-                    className={`px-3 py-1.5 rounded-lg transition ${chartMode === 'area' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded transition ${chartMode === 'area' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white' : 'text-stone-400 hover:text-white'}`}
                   >
                     📈 Area Line
                   </button>
                 </div>
               </div>
 
-              {/* TradingView Canvas */}
-              <div ref={chartContainerRef} className="w-full rounded-2xl overflow-hidden min-h-[380px]"></div>
+              {/* Built-in Guaranteed Native Trading Engine (Canvas / SVG) */}
+              <div className="relative w-full h-[360px] bg-[#0c0806] rounded-lg p-3 border border-orange-500/10 overflow-hidden flex flex-col justify-between">
+                
+                {/* Horizontal Level Guides */}
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 opacity-10">
+                  <div className="border-b border-dashed border-orange-400 w-full"></div>
+                  <div className="border-b border-dashed border-orange-400 w-full"></div>
+                  <div className="border-b border-dashed border-orange-400 w-full"></div>
+                  <div className="border-b border-dashed border-orange-400 w-full"></div>
+                </div>
 
-              {/* Daily Stat Strip */}
-              <div className="grid grid-cols-4 gap-2 pt-3 border-t border-stone-800/80 text-center font-mono text-[11px]">
-                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                {/* Range Labels */}
+                <div className="flex justify-between text-[11px] font-mono text-stone-400 z-10">
+                  <span>HIGH: <strong className="text-orange-400">PKR {maxPrice.toFixed(2)}</strong></span>
+                  <span>LOW: <strong className="text-stone-300">PKR {minPrice.toFixed(2)}</strong></span>
+                </div>
+
+                {/* Chart Graphic Display */}
+                {chartMode === 'candles' ? (
+                  <div className="w-full h-[280px] flex items-end justify-between px-2 z-10">
+                    {candles.slice(-32).map((c: any, idx: number) => {
+                      const isUp = c.close >= c.open;
+                      const bodyHeight = Math.max(4, (Math.abs(c.close - c.open) / priceRange) * 220);
+                      const wickHeight = Math.max(bodyHeight, ((c.high - c.low) / priceRange) * 240);
+                      return (
+                        <div key={idx} className="flex flex-col items-center justify-center relative w-full h-full group cursor-crosshair">
+                          {/* Candle Wick */}
+                          <div className={`w-[1px] ${isUp ? 'bg-orange-500' : 'bg-stone-500'}`} style={{ height: `${wickHeight}px` }}></div>
+                          {/* Candle Body */}
+                          <div
+                            className={`w-[6px] md:w-[8px] rounded-[1px] ${isUp ? 'bg-gradient-to-t from-orange-600 to-amber-500 shadow-sm shadow-orange-500/30' : 'bg-[#2b1f18] border border-stone-600'} absolute`}
+                            style={{ height: `${bodyHeight}px` }}
+                          ></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="w-full h-[280px] flex items-center z-10">
+                    <svg viewBox="0 0 500 180" className="w-full h-full overflow-visible">
+                      <defs>
+                        <linearGradient id="amberGlow" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#f97316" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#f97316" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      {candles.length > 1 && (
+                        <>
+                          <polygon
+                            fill="url(#amberGlow)"
+                            points={`0,180 ${candles.map((c: any, i: number) => `${(i / (candles.length - 1)) * 500},${180 - ((c.close - minPrice) / priceRange) * 160}`).join(' ')} 500,180`}
+                          />
+                          <polyline
+                            fill="none"
+                            stroke="#f97316"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            points={candles.map((c: any, i: number) => `${(i / (candles.length - 1)) * 500},${180 - ((c.close - minPrice) / priceRange) * 160}`).join(' ')}
+                          />
+                        </>
+                      )}
+                    </svg>
+                  </div>
+                )}
+
+                {/* Bottom Timeline */}
+                <div className="flex justify-between text-[10px] text-stone-500 font-mono z-10 border-t border-stone-900 pt-1">
+                  <span>09:15 AM (Open)</span>
+                  <span>11:30 AM</span>
+                  <span>01:30 PM</span>
+                  <span>03:30 PM (Close)</span>
+                </div>
+              </div>
+
+              {/* Daily Statistics */}
+              <div className="grid grid-cols-4 gap-2 pt-2.5 text-center font-mono text-[11px]">
+                <div className="bg-[#17110d] p-1.5 rounded-md border border-orange-500/10">
                   <span className="text-stone-500 block text-[9px] uppercase">Open</span>
                   <span className="font-bold text-white">PKR {stockData?.open || '171.0'}</span>
                 </div>
-                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                <div className="bg-[#17110d] p-1.5 rounded-md border border-orange-500/10">
                   <span className="text-stone-500 block text-[9px] uppercase">High</span>
                   <span className="font-bold text-orange-400">PKR {stockData?.high || '175.5'}</span>
                 </div>
-                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                <div className="bg-[#17110d] p-1.5 rounded-md border border-orange-500/10">
                   <span className="text-stone-500 block text-[9px] uppercase">Low</span>
                   <span className="font-bold text-stone-300">PKR {stockData?.low || '170.2'}</span>
                 </div>
-                <div className="bg-[#1c1511] p-2 rounded-xl border border-orange-500/10">
+                <div className="bg-[#17110d] p-1.5 rounded-md border border-orange-500/10">
                   <span className="text-stone-500 block text-[9px] uppercase">Volume</span>
-                  <span className="font-bold text-white">{stockData?.volume ? stockData.volume.toLocaleString() : '12.4M'}</span>
+                  <span className="font-bold text-white">{stockData?.volume ? stockData.volume.toLocaleString() : '14.2M'}</span>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Section: Market News & Fundamentals */}
-            <div className="bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex-1 flex flex-col">
-              <div className="flex gap-4 border-b border-stone-800 pb-2 mb-3 text-xs font-bold">
+            {/* Bottom News & Valuation Tabs */}
+            <div className="bg-[#130e0b] border border-orange-500/10 rounded-xl p-3 shadow-xl flex-1 flex flex-col">
+              <div className="flex gap-4 border-b border-stone-800 pb-2 mb-2 text-xs font-bold">
                 <button
                   onClick={() => setCenterTab('news')}
                   className={`pb-1 transition ${centerTab === 'news' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-stone-400 hover:text-white'}`}
                 >
-                  📰 PSX Intelligence & News
+                  📰 Market News & Regulatory Filings
                 </button>
                 <button
                   onClick={() => setCenterTab('financials')}
@@ -481,9 +456,9 @@ export default function NafaXTerminal() {
               </div>
 
               {centerTab === 'news' ? (
-                <div className="space-y-2 overflow-y-auto max-h-[145px] pr-1">
+                <div className="space-y-1.5 overflow-y-auto max-h-[140px] pr-1">
                   {MARKET_NEWS.map((n) => (
-                    <div key={n.id} className="p-2.5 rounded-xl bg-[#1e1713] border border-orange-500/10 flex justify-between items-center hover:border-orange-500/30 transition">
+                    <div key={n.id} className="p-2 rounded-lg bg-[#18110d] border border-orange-500/5 flex justify-between items-center hover:border-orange-500/20 transition">
                       <div>
                         <p className="text-xs text-stone-200 font-semibold">{n.title}</p>
                         <span className="text-[10px] text-stone-500">{n.time}</span>
@@ -495,17 +470,17 @@ export default function NafaXTerminal() {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-3 font-mono text-xs">
-                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
+                <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+                  <div className="bg-[#18110d] p-2.5 rounded-lg border border-orange-500/10">
                     <span className="text-stone-500 text-[10px] block uppercase">P/E Ratio</span>
-                    <span className="font-bold text-white text-base">{activeStock.pe}x</span>
+                    <span className="font-bold text-white text-sm">{activeStock.pe}x</span>
                   </div>
-                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
+                  <div className="bg-[#18110d] p-2.5 rounded-lg border border-orange-500/10">
                     <span className="text-stone-500 text-[10px] block uppercase">Market Cap</span>
-                    <span className="font-bold text-white text-base">PKR {activeStock.mktCap}</span>
+                    <span className="font-bold text-white text-sm">PKR {activeStock.mktCap}</span>
                   </div>
-                  <div className="bg-[#1e1713] p-3 rounded-xl border border-orange-500/10">
-                    <span className="text-stone-500 text-[10px] block uppercase">Sector Classification</span>
+                  <div className="bg-[#18110d] p-2.5 rounded-lg border border-orange-500/10">
+                    <span className="text-stone-500 text-[10px] block uppercase">Sector</span>
                     <span className="font-bold text-orange-400 text-xs">{activeStock.sector}</span>
                   </div>
                 </div>
@@ -513,34 +488,32 @@ export default function NafaXTerminal() {
             </div>
           </div>
 
-          {/* ================= COLUMN 3: RIGHT PSX MARKET WATCH ================= */}
-          <div className="lg:col-span-3 bg-[#16100d]/90 border border-orange-500/15 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col space-y-3.5">
-            <div className="border-b border-stone-800 pb-3 space-y-2.5">
+          {/* ================= COLUMN 3: RIGHT SCREENER ================= */}
+          <div className="lg:col-span-3 bg-[#130e0b] border border-orange-500/10 rounded-xl p-3 shadow-xl flex flex-col space-y-2.5">
+            <div className="border-b border-stone-800 pb-2 space-y-2">
               <div className="flex justify-between items-center">
                 <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-orange-400">🔥</span> PSX Market Screener
+                  <span className="text-orange-400">🔥</span> PSX Screener
                 </h3>
-                <span className="text-[10px] bg-[#1e1713] text-orange-400 px-2.5 py-0.5 rounded-full font-mono border border-orange-500/15">
+                <span className="text-[10px] bg-[#18110d] text-orange-400 px-2 py-0.5 rounded font-mono border border-orange-500/10">
                   {filteredStocks.length}
                 </span>
               </div>
 
-              {/* Search Bar */}
               <input
                 type="text"
-                placeholder="Search PSX Stocks..."
+                placeholder="Search Stocks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#1e1713] border border-orange-500/15 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 outline-none focus:border-orange-500 transition"
+                className="w-full bg-[#18110d] border border-orange-500/15 rounded-md px-2.5 py-1.5 text-xs text-white placeholder-stone-500 outline-none focus:border-orange-500 transition"
               />
 
-              {/* Category Pills */}
               <div className="flex flex-wrap gap-1 text-[10px] font-bold">
                 {(['ALL', 'SHARIAH', 'ENERGY', 'TECH', 'BANK'] as const).map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-2.5 py-1 rounded-lg transition ${activeCategory === cat ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-sm' : 'bg-[#1e1713] text-stone-400 hover:text-white'}`}
+                    className={`px-2 py-0.5 rounded transition ${activeCategory === cat ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white' : 'bg-[#18110d] text-stone-400 hover:text-white'}`}
                   >
                     {cat}
                   </button>
@@ -548,8 +521,7 @@ export default function NafaXTerminal() {
               </div>
             </div>
 
-            {/* Screener Items List */}
-            <div className="space-y-1.5 overflow-y-auto max-h-[690px] pr-1">
+            <div className="space-y-1 overflow-y-auto max-h-[670px] pr-1">
               {filteredStocks.map((stk) => {
                 const isSelected = stk.symbol === selectedSymbol;
 
@@ -560,10 +532,10 @@ export default function NafaXTerminal() {
                       setSelectedSymbol(stk.symbol);
                       fetchData(stk.symbol);
                     }}
-                    className={`p-2.5 rounded-2xl border cursor-pointer transition flex items-center justify-between group ${
+                    className={`p-2 rounded-lg border cursor-pointer transition flex items-center justify-between group ${
                       isSelected
-                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-600/10 border-orange-500/50 shadow-lg'
-                        : 'bg-[#1a130f] border-orange-500/5 hover:border-orange-500/25 hover:bg-[#201813]'
+                        ? 'bg-gradient-to-r from-orange-500/20 to-amber-600/10 border-orange-500/40 shadow-sm'
+                        : 'bg-[#17110d] border-orange-500/5 hover:border-orange-500/20'
                     }`}
                   >
                     <div>
@@ -575,7 +547,7 @@ export default function NafaXTerminal() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-stone-400 truncate max-w-[100px]">{stk.name}</p>
+                      <p className="text-[10px] text-stone-400 truncate max-w-[95px]">{stk.name}</p>
                     </div>
 
                     <div className="text-right font-mono">
